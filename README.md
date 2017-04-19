@@ -6,7 +6,7 @@ community detection for the whole Twitter graph on a single laptop. We use minha
 
 Download the minhash data available at:
 
-https://www.dropbox.com/s/sce6qcmbkpjpeuh/plos_one_data.csv?dl=0
+https://www.dropbox.com/s/sce6qcmbkpjpeuh/hashes.csv?dl=0
 
 Assuming you are in the directory of the source code and have cloned the rep.
 
