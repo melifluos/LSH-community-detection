@@ -27,6 +27,7 @@ import pandas as pd
 import time
 import mmh3  # platform independent, robust and fast hash function
 import cPickle as pickle
+import numpy as np
 import argparse
 
 
@@ -79,8 +80,10 @@ def hash_query_sig(query_sig, band_size):
     produces the hashes to look up for a query account
     """
     query_hash = []
+    query_sig = query_sig.astype(np.int64)
     for band_num, col_idx in enumerate(xrange(0, len(query_sig), int(band_size))):
         hash_val = mmh3.hash(query_sig[col_idx:(col_idx + band_size)].tostring())
+        # hash_val = mmh3.hash(query_sig[col_idx:(col_idx + band_size)])
         query_hash.append(hash_val)
     return query_hash
 
@@ -162,6 +165,7 @@ def hash_single_band(band):
     :param band: a band of minhash signatures for all accounts
     """
     band_hash = {}
+    band = band.astype(np.int64)
     # for each account
     for row_idx in range(len(band)):
         hash_val = mmh3.hash(band[row_idx].tostring())
@@ -200,22 +204,24 @@ def build_LSH_table(signatures, outpath, n_bands=500):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Generate community features',
-                                     epilog='features are based just on the communities and not all of Twitter')
-    parser.add_argument(
-        'inpath', type=str,
-        nargs='+', default='local_resources/plos_one_data.csv', help='the location of the minhash file')
-    parser.add_argument(
-        'outpath', type=str,
-        nargs='+', default='results/community_analysis.csv', help='the location to write data to')
-
-    args = parser.parse_args()
-
-    print args.inpath[0]
-    print args.outpath[0]
-
-    inpath = args.inpath[0]
-    outpath = args.outpath[0]
+    # parser = argparse.ArgumentParser(description='Generate community features',
+    #                                  epilog='features are based just on the communities and not all of Twitter')
+    # parser.add_argument(
+    #     'inpath', type=str,
+    #     nargs='+', default='local_resources/twitter_data.csv', help='the location of the minhash file')
+    # parser.add_argument(
+    #     'outpath', type=str,
+    #     nargs='+', default='results/community_analysis.csv', help='the location to write data to')
+    #
+    # args = parser.parse_args()
+    #
+    # print args.inpath[0]
+    # print args.outpath[0]
+    #
+    # inpath = args.inpath[0]
+    # outpath = args.outpath[0]
+    inpath = '../../local_resources/twitter_data.csv'
+    outpath = '../../results/community_analysis.csv'
     data = pd.read_csv(inpath, index_col=0)
     signatures = data.values
     build_LSH_table(signatures, outpath)

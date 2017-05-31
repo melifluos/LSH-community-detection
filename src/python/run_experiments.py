@@ -459,7 +459,7 @@ if __name__ == '__main__':
     result_interval = 10  # the intervals in number of accounts to snap the recall at
     random_seeds = [451235, 35631241, 2315, 346213456, 134]
 
-    inpath = '../../local_resources/plos_one_data.csv'
+    inpath = '../../local_resources/twitter_data.csv'
     outfolder = '../../results'
     lsh_path = '../../results/hash_table.pkl'
 
