@@ -36,18 +36,20 @@ class CommunityDetector:
         self.load_lsh_table(lsh_path)
         self.lsh_candidates = None
 
-    def calculate_initial_average_similarity(self, communities):
+    def calculate_initial_average_similarity(self, seeds):
         """
         calculates the average similarity of every account with the
-        members of the communities
+        seeds
+        :param seeds: A default dictionary of the form {community: [seeds]}
+        :returns A pandas DataFrame of shape (n_communities, n_active_accounts) indexed by community name
         """
         n_accounts, n_hashes = self.active_signatures.shape
-        n_communities = len(communities)
+        n_communities = len(seeds)
 
         # get the average similarity between a community and all other accounts
         average_similarities = np.zeros(shape=(n_communities, n_accounts))
         index = []
-        for set_num, candidates in enumerate(communities.iteritems()):
+        for set_num, candidates in enumerate(seeds.iteritems()):
             # store the individual similarities for each account
             name, accounts = candidates
             index.append(name)
@@ -75,8 +77,9 @@ class CommunityDetector:
         :return:
         """
         # get an array of account identifiers in similarity order for every community
-        sorted_vals = np.argsort(-account_similarities.values)
-        sorted_idx = pd.DataFrame(data=sorted_vals, index=sorted_vals.index)
+        try:
+            sorted_vals = np.argsort(-account_similarities.values)
+            sorted_idx = pd.DataFrame(data=sorted_vals, index=account_similarities.index)
         # n_communities = account_similarities.shape[0]
         with open(self.outfolder + '/' + file_name, 'ab') as f:
             writer = csv.writer(f)
@@ -138,7 +141,7 @@ class CommunityDetector:
         """
         n_communities = len(communities)
         # get an array of account identifiers in similarity order for every community
-        sorted_idx = np.argsort(-account_similarities)
+        sorted_idx = np.argsort(-account_similarities.values)
 
         # for each community, try the accounts in decreasing similarity order
         for community_idx in range(n_communities):
@@ -262,25 +265,30 @@ class CommunityDetector:
                 # set_recall = (hit_count - n_seeds) / float(target_size)
                 writer.writerow(results)
 
-    def pageRank(self, account_similarities, seed_ids, k_iterations=3, print_full_info=False, beta=0.9):
-        '''
-        A: Normalised jaccard matrix times by 1000 (int representation)
-        seeds_index_list: List of indes of the seeds
-        k_iterations: the number of iteration for pagerank to perform
-        '''
+    def pageRank(self, seeds, k_iterations=3, beta=0.9):
+        """
+        Calculate the personalised pageRank for each active vertex
+        :param seeds: the original seeds
+        :param k_iterations: number of steps for the random walks
+        :param beta: 1 - teleport probability
+        :return: A numpy array of shape (active_indices, active_indices
+        """
         # get the full similarity matrix using jaccard_sim = 1 - jaccard_dist
         A = 1 - squareform(pdist(self.active_signatures, 'jaccard'))
         seed_index_list = []
-        for set_num, accounts in seed_ids.iteritems():
-            # store the individual similarities for each account
-            for account_idx, account_id in enumerate(accounts):
-                try:
-                    seed_index_list.append(self.id_to_index(account_id[0]))
-                except IndexError:
-                    print account_id, 'NOT IN INDEX'
-                except KeyError:
-                    print account_id, 'NOT IN LSH CANDIDATES - PROBABLY BECAUSE THERE IS NO T-FILE'
-                    # Create seed and rank vectors
+        # get all of the values in the dictionary into a 1D list
+        seed_index_list = [self.lsh_candidates.get_active_idx(account) for community in seeds.values() for account in
+                           community]
+        # for set_num, accounts in seed_ids.iteritems():
+        #     # store the individual similarities for each account
+        #     for account_idx, account_id in enumerate(accounts):
+        #         try:
+        #             seed_index_list.append(self.id_to_index(account_id[0]))
+        #         except IndexError:
+        #             print account_id, 'NOT IN INDEX'
+        #         except KeyError:
+        #             print account_id, 'NOT IN LSH CANDIDATES - PROBABLY BECAUSE THERE IS NO T-FILE'
+        # Create seed and rank vectors
         R = np.ones((A.shape[0], 1))  # Rank vector
         R_total = R.sum()  # Total starting PageRank
         S = np.zeros((A.shape[0], 1))  # Seeds vector
@@ -301,22 +309,6 @@ class CommunityDetector:
             R = beta * A.dot(R)
             missing_R = R_total - R.sum()  # Determine the missing PageRank and reinject into the seeds
             R += (missing_R / S_num) * S
-
-            if print_full_info == True:
-                # Find top Stars
-                top_account_index = np.argsort(-R[:, 0])[0:10]
-                top_account_ids = self.index_to_id(top_account_index)
-                top_account = self.account_lookup.id(top_account_ids)['handle']
-                top_account_strength = R[top_account_index, 0]
-
-                print "Average label strength: {}".format(R.mean())
-                print "Top Stars with strengths:"
-                print list(top_account)
-                print list(top_account_strength)
-
-                dt = time() - t0
-                print "Itteration took {}s".format(round(dt, 1))
-                t0 = time()
 
         return R.T
 
@@ -360,9 +352,9 @@ class CommunityDetector:
         self.output_best_initial_averages(account_similarities, seeds,
                                           n_seeds, n_accounts, result_interval, file_name='initial_avgs.csv')
         prt0 = time()
-        R = self.pageRank(account_similarities, seeds, print_full_info=True)
+        R = self.pageRank(seeds)
         pr_time = time() - prt0
-        self.output_best_initial_averages(R, seeds, tags, n_seeds, n_accounts,
+        self.output_best_initial_averages(R, seeds, n_seeds, n_accounts,
                                           result_interval, file_name='pagerank.csv')
 
         self.used_ids = {}
@@ -424,6 +416,7 @@ class CommunityDetector:
         start_time = time()
 
         for idx, rdm_seed in enumerate(random_seeds):
+            # generate Twitter account indices to seed the local community detection
             seeds = self.generate_seeds(rdm_seed)
 
             print seeds
