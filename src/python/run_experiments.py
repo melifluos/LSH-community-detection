@@ -77,9 +77,9 @@ class CommunityDetector:
         :return:
         """
         # get an array of account identifiers in similarity order for every community
-        try:
-            sorted_vals = np.argsort(-account_similarities.values)
-            sorted_idx = pd.DataFrame(data=sorted_vals, index=account_similarities.index)
+        sorted_vals = np.argsort(-account_similarities.values)
+        sorted_idx = pd.DataFrame(data=sorted_vals, index=account_similarities.index)
+
         # n_communities = account_similarities.shape[0]
         with open(self.outfolder + '/' + file_name, 'ab') as f:
             writer = csv.writer(f)
@@ -134,7 +134,7 @@ class CommunityDetector:
         except ValueError:
             pass
 
-    def increment_communities(self, account_similarities, communities, community_hashes=None):
+    def increment_communities(self, account_similarities, communities):
         """
         Find the most similar account not already in each community and
         add them to it.
@@ -146,34 +146,36 @@ class CommunityDetector:
         # for each community, try the accounts in decreasing similarity order
         for community_idx in range(n_communities):
             if not community_idx in self.used_ids:
-                self.used_ids[community_idx] = Set([])
+                # self.used_ids[community_idx] = Set([])
+                self.used_idx[community_idx] = Set([])
             col_idx = 0
             while True:
                 # get the index of the high jaccard account into the active indices
                 try:
-                    account_idx = sorted_idx[community_idx, col_idx]
+                    active_idx = sorted_idx[community_idx, col_idx]
                 except IndexError:
                     print 'no accounts left to add to the community'
                     raise
                 # convert from an index into the active accounts to a account id
-                account_id = self.index_to_id(account_idx)
+                account_idx = self.lsh_candidates.get_account_idx(active_idx)
+                # account_id = self.index_to_id(account_idx)
 
-                if account_id not in self.used_ids[community_idx] and account_id:
+                # if account_id not in self.used_ids[community_idx] and account_id:
+                if account_idx not in self.used_ids[community_idx] and account_idx:
                     # add the new account
-                    if community_hashes:  # if we're representing the whole community with a single signature, then update the signature
-                        community_hashes[community_idx, :] = np.minimum(community_hashes[community_idx, :],
-                                                                        self.active_signatures[account_idx, :])
-                    else:  # update the similarities to include the new account
                         # get the size of the community for the community update equation
                         community_size = len(communities[str(community_idx + 1)])
-                        self.update_account_similarities(account_similarities, account_id, community_idx,
+                        # self.update_account_similarities(account_similarities, account_id, community_idx,
+                        #                                  community_size)
+                        self.update_account_similarities(account_similarities, account_idx, community_idx,
                                                          community_size)
                         # get the Jaccard for this new account with the community
                     jacc = account_similarities[community_idx, account_idx]
                     # add the new account to the community
-                    account_handle = self.account_lookup.id(account_id)['handle']
+                    # account_handle = self.account_lookup.id(account_id)['handle']
                     communities[str(community_idx + 1)].append((int(account_id), account_handle, jacc))
-                    self.used_ids[community_idx].add(account_id)
+                    # self.used_ids[community_idx].add(account_id)
+                    self.used_idx[community_idx].add(account_idx)
 
                     # move to the next community
                     break
@@ -271,46 +273,54 @@ class CommunityDetector:
         :param seeds: the original seeds
         :param k_iterations: number of steps for the random walks
         :param beta: 1 - teleport probability
-        :return: A numpy array of shape (active_indices, active_indices
+        :return: A numpy array of shape (active_indices, 1)
         """
         # get the full similarity matrix using jaccard_sim = 1 - jaccard_dist
         A = 1 - squareform(pdist(self.active_signatures, 'jaccard'))
-        seed_index_list = []
+        # seed_index_list = []
         # get all of the values in the dictionary into a 1D list
-        seed_index_list = [self.lsh_candidates.get_active_idx(account) for community in seeds.values() for account in
-                           community]
-        # for set_num, accounts in seed_ids.iteritems():
-        #     # store the individual similarities for each account
-        #     for account_idx, account_id in enumerate(accounts):
-        #         try:
-        #             seed_index_list.append(self.id_to_index(account_id[0]))
-        #         except IndexError:
-        #             print account_id, 'NOT IN INDEX'
-        #         except KeyError:
-        #             print account_id, 'NOT IN LSH CANDIDATES - PROBABLY BECAUSE THERE IS NO T-FILE'
-        # Create seed and rank vectors
-        R = np.ones((A.shape[0], 1))  # Rank vector
-        R_total = R.sum()  # Total starting PageRank
-        S = np.zeros((A.shape[0], 1))  # Seeds vector
-        S[seed_index_list] = 1  # Set seeds
-        S_num = S.sum()  # Number of seeds
+        index = []
+        PR = np.zeros(shape=(len(seeds), A.shape[0]))
+        for idx, (community, accounts) in enumerate(seeds.iteritems()):
+            index.append(community)
+            seed_index_list = [self.lsh_candidates.get_active_idx(account) for account in accounts]
+            # seed_index_list = [self.lsh_candidates.get_active_idx(account) for community in seeds.values() for account in
+            #                    community]
+            # for set_num, accounts in seed_ids.iteritems():
+            #     # store the individual similarities for each account
+            #     for account_idx, account_id in enumerate(accounts):
+            #         try:
+            #             seed_index_list.append(self.id_to_index(account_id[0]))
+            #         except IndexError:
+            #             print account_id, 'NOT IN INDEX'
+            #         except KeyError:
+            #             print account_id, 'NOT IN LSH CANDIDATES - PROBABLY BECAUSE THERE IS NO T-FILE'
+            # Create seed and rank vectors
+            R = np.ones((A.shape[0], 1))  # Rank vector
+            R_total = R.sum()  # Total starting PageRank
+            S = np.zeros((A.shape[0], 1))  # Seeds vector
+            S[seed_index_list] = 1  # Set seeds
+            S_num = S.sum()  # Number of seeds
 
-        # Normalise
-        print "{} Normalising matrix for pageRank".format(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
-        connection_sum = A.sum(axis=0)
-        np.divide(A, connection_sum, out=A)
+            # Normalise
+            print "{} Normalising matrix for pageRank".format(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+            connection_sum = A.sum(axis=0)
+            np.divide(A, connection_sum, out=A)
 
-        # Start label propagation
-        t0 = time()
-        for i in range(1, k_iterations + 1):
-            print "\n{} Starting itteration {}".format(strftime("%Y-%m-%d %H:%M:%S", gmtime()), i)
+            # Start label propagation
+            t0 = time()
+            for i in range(1, k_iterations + 1):
+                print "\n{} Starting itteration {}".format(strftime("%Y-%m-%d %H:%M:%S", gmtime()), i)
 
-            # propagate labels with teleportation
-            R = beta * A.dot(R)
-            missing_R = R_total - R.sum()  # Determine the missing PageRank and reinject into the seeds
-            R += (missing_R / S_num) * S
+                # propagate labels with teleportation
+                R = beta * A.dot(R)
+                missing_R = R_total - R.sum()  # Determine the missing PageRank and reinject into the seeds
+                R += (missing_R / S_num) * S
+            PR[idx, :] = R.T
 
-        return R.T
+        df = pd.DataFrame(data=PR, index=index)
+
+        return df
 
     def run_community_detection(self, seeds, n_accounts=50, n_seeds=5, result_interval=10,
                                 runtime_file=None):
@@ -320,9 +330,6 @@ class CommunityDetector:
         :param community sizes - the total size of the ground truthed communities
         :param n_accounts - the maximum number of accounts to grow the community to
         :param n_seeds: The number of seeds to use
-        :param min_seed_followers - seeds need to have more than this number of followers
-        :param max_followers - don't allow any accounts larger than this value to form communities
-        :param generate_seeds - if true randomly select seeds from a given tag class. Otherwise read them from file
         :param result_interval - the number of accounts that are added to the seeds between each reading of the recall
         :param runtime_file: write the runtime of these methods to file
         """
