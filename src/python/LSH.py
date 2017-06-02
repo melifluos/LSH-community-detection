@@ -140,7 +140,9 @@ def run_query(seeds, signatures, lsh_table, return_query_id=True):
     matches = []
 
     if isinstance(seeds, dict):
-        accounts = seeds.values()[0]
+        # get all of the values in the dictionary into a 1D list
+        accounts = [account for community in seeds.values() for account in community]
+        # accounts = seeds.values()[0]
     else:
         accounts = seeds
     if isinstance(accounts, list):

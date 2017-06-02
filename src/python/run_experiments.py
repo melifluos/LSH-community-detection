@@ -46,10 +46,11 @@ class CommunityDetector:
 
         # get the average similarity between a community and all other accounts
         average_similarities = np.zeros(shape=(n_communities, n_accounts))
-
+        index = []
         for set_num, candidates in enumerate(communities.iteritems()):
             # store the individual similarities for each account
             name, accounts = candidates
+            index.append(name)
             similarities = np.zeros(shape=(len(accounts), n_accounts))
             for similarity_idx, account_idx in enumerate(accounts):
                 # convert to an index into just the active signatures
@@ -58,9 +59,10 @@ class CommunityDetector:
                                                                                 self.active_signatures[row_idx, :])
 
             average_similarities[set_num, :] = similarities.mean(0)
-        return average_similarities
+        df = pd.DataFrame(data=average_similarities, index=index)
+        return df
 
-    def output_best_initial_averages(self, account_similarities, seeds, tags_df,
+    def output_best_initial_averages(self, account_similarities, seeds,
                                      n_seeds, n_accounts, interval, file_name):
         """
         Extract accounts with the highest average Jaccards with the input seeds
@@ -73,25 +75,28 @@ class CommunityDetector:
         :return:
         """
         # get an array of account identifiers in similarity order for every community
-        sorted_idx = np.argsort(-account_similarities)
+        sorted_vals = np.argsort(-account_similarities.values)
+        sorted_idx = pd.DataFrame(data=sorted_vals, index=sorted_vals.index)
         # n_communities = account_similarities.shape[0]
         with open(self.outfolder + '/' + file_name, 'ab') as f:
             writer = csv.writer(f)
-            for key, val in seeds.iteritems():
-                name, n_members = self.community_sizes[key]
+            for name, val in seeds.iteritems():
+                n_members = self.community_sizes[name]
                 out_line = []
-                community = int(key) - 1
+                # community = int(key) - 1
                 hit_count = 0
                 total_recall = 0
-                for idx, account_idx in enumerate(sorted_idx[community, :]):
-                    account_id = self.index_to_id(account_idx)
+                for idx, account_idx in enumerate(sorted_idx.ix[name, :]):
+                    # account_id = self.index_to_id(account_idx)
                     # jacc = account_similarities[community,account_idx]
                     try:
-                        result_line = tags_df.loc[tags_df['NetworkID'] == int(account_id)]
+                        result_line = self.signatures.ix[account_idx, :]
+                        # result_line = tags_df.loc[tags_df['NetworkID'] == int(account_id)]
                     except TypeError:
-                        print account_id, ' of type ', type(account_id), 'caused type error'
+                        print account_idx, ' of type ', type(account_idx), 'caused type error'
+                        # print account_id, ' of type ', type(account_id), 'caused type error'
                         raise
-                    if name in str(result_line['Tag']):
+                    if name == str(result_line['community']):
                         hit_count += 1
                     if (idx + 1) % interval == 0:  # record data at this point
                         # how much of the entire set did we get
@@ -352,7 +357,7 @@ class CommunityDetector:
         ast0 = time()
         account_similarities = self.calculate_initial_average_similarity(seeds)
         avg_sim_time = time() - ast0
-        self.output_best_initial_averages(account_similarities, seeds, tags,
+        self.output_best_initial_averages(account_similarities, seeds,
                                           n_seeds, n_accounts, result_interval, file_name='initial_avgs.csv')
         prt0 = time()
         R = self.pageRank(account_similarities, seeds, print_full_info=True)
