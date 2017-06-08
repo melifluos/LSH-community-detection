@@ -35,6 +35,7 @@ class CommunityDetector:
         self.outfolder = outfolder
         self.load_lsh_table(lsh_path)
         self.lsh_candidates = None
+        self.used_idx = {}
 
     def calculate_initial_average_similarity(self, seeds):
         """
@@ -118,11 +119,16 @@ class CommunityDetector:
                                                '.4f'))  # recall won't improve as no more candidates
                     writer.writerow(out_line)
 
-    def update_account_similarities(self, community_similarities, new_account, community, community_size):
+    def update_account_similarities(self, community_similarities, row_idx, community, community_size):
         """
-        adds a new account to the average similarities
+        Adds a new account to the average similarities
+        :param community_similarities:
+        :param row_idx: The index of this account into the full signature matrix
+        :param community:
+        :param community_size:
+        :return: None
         """
-        row_idx = self.id_to_index(new_account)
+        # row_idx = self.id_to_index(new_account)
         # find the similarity between this account and all others
         new_account_similarities = self.get_account_similarities(self.active_signatures,
                                                                  self.active_signatures[row_idx, :])
@@ -134,25 +140,30 @@ class CommunityDetector:
         except ValueError:
             pass
 
-    def increment_communities(self, account_similarities, communities):
+    def increment_communities(self, account_similarities, seeds):
         """
         Find the most similar account not already in each community and
         add them to it.
+        :param account_similarities: A pandas dataframe of account similarities indexed by the community names of shape
+        (n_communities, n_accounts)
+        :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
+        :return: None
         """
-        n_communities = len(communities)
+        # n_communities = len(seeds)
         # get an array of account identifiers in similarity order for every community
-        sorted_idx = np.argsort(-account_similarities.values)
+        temp = np.argsort(-account_similarities.values)
+        sorted_idx = pd.DataFrame(data=temp, index=account_similarities.index)
 
         # for each community, try the accounts in decreasing similarity order
-        for community_idx in range(n_communities):
-            if not community_idx in self.used_ids:
+        for community in seeds.keys():
+            if not community in self.used_idx:
                 # self.used_ids[community_idx] = Set([])
-                self.used_idx[community_idx] = Set([])
+                self.used_idx[community] = Set([])
             col_idx = 0
             while True:
                 # get the index of the high jaccard account into the active indices
                 try:
-                    active_idx = sorted_idx[community_idx, col_idx]
+                    active_idx = sorted_idx.ix[community, col_idx]
                 except IndexError:
                     print 'no accounts left to add to the community'
                     raise
@@ -161,21 +172,22 @@ class CommunityDetector:
                 # account_id = self.index_to_id(account_idx)
 
                 # if account_id not in self.used_ids[community_idx] and account_id:
-                if account_idx not in self.used_ids[community_idx] and account_idx:
+                if account_idx not in self.used_idx[community] and account_idx:
                     # add the new account
-                        # get the size of the community for the community update equation
-                        community_size = len(communities[str(community_idx + 1)])
-                        # self.update_account_similarities(account_similarities, account_id, community_idx,
-                        #                                  community_size)
-                        self.update_account_similarities(account_similarities, account_idx, community_idx,
-                                                         community_size)
-                        # get the Jaccard for this new account with the community
-                    jacc = account_similarities[community_idx, account_idx]
+                    # get the size of the community for the community update equation
+                    community_size = len(seeds[community])
+                    # self.update_account_similarities(account_similarities, account_id, community_idx,
+                    #                                  community_size)
+                    self.update_account_similarities(account_similarities, account_idx, community,
+                                                     community_size)
+                    # get the Jaccard for this new account with the community
+                    jacc = account_similarities.ix[community, account_idx]
                     # add the new account to the community
                     # account_handle = self.account_lookup.id(account_id)['handle']
-                    communities[str(community_idx + 1)].append((int(account_id), account_handle, jacc))
+                    # seeds[str(community_idx + 1)].append((int(account_id), account_handle, jacc))
+                    seeds[community].append((account_idx, jacc))
                     # self.used_ids[community_idx].add(account_id)
-                    self.used_idx[community_idx].add(account_idx)
+                    self.used_idx[community].add(account_idx)
 
                     # move to the next community
                     break
@@ -364,7 +376,6 @@ class CommunityDetector:
         self.output_best_initial_averages(R, seeds, n_seeds, n_accounts,
                                           result_interval, file_name='pagerank.csv')
 
-        self.used_ids = {}
         srt0 = time()
         for idx in range(n_additions):
             # Adds the next most similar account to each group of seeds and updates the average distance from the community members to all other accounts
