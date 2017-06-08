@@ -122,10 +122,10 @@ class CommunityDetector:
     def update_account_similarities(self, community_similarities, row_idx, community, community_size):
         """
         Adds a new account to the average similarities
-        :param community_similarities:
-        :param row_idx: The index of this account into the full signature matrix
-        :param community:
-        :param community_size:
+        :param community_similarities: A pandas dataframe with index community_names and shape (n_communities, n_active_accounts)
+        :param row_idx: The index of this account into the active signature matrix
+        :param community: The name of current community
+        :param community_size: The size of the community called <community> ie. the seeds plus any additions
         :return: None
         """
         # row_idx = self.id_to_index(new_account)
@@ -145,7 +145,7 @@ class CommunityDetector:
         Find the most similar account not already in each community and
         add them to it.
         :param account_similarities: A pandas dataframe of account similarities indexed by the community names of shape
-        (n_communities, n_accounts)
+        (n_communities, n_active_accounts)
         :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
         :return: None
         """
@@ -178,10 +178,10 @@ class CommunityDetector:
                     community_size = len(seeds[community])
                     # self.update_account_similarities(account_similarities, account_id, community_idx,
                     #                                  community_size)
-                    self.update_account_similarities(account_similarities, account_idx, community,
+                    self.update_account_similarities(account_similarities, active_idx, community,
                                                      community_size)
                     # get the Jaccard for this new account with the community
-                    jacc = account_similarities.ix[community, account_idx]
+                    jacc = account_similarities.ix[community, active_idx]
                     # add the new account to the community
                     # account_handle = self.account_lookup.id(account_id)['handle']
                     # seeds[str(community_idx + 1)].append((int(account_id), account_handle, jacc))
