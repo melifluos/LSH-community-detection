@@ -225,17 +225,17 @@ class CommunityDetector:
         :param communities: default dictionary of type community_name:[(acc_idx1, jacc1), (acc_idx2, jacc2), ...], ...].
         The seeds plus all additions to the communities
         """
-        truth = self.signatures.index
+        truth = self.signatures.community
         with open(self.outfolder + '/community_output.csv', 'wb') as f:
             writer = csv.writer(f)
             writer.writerow(
                 ['community', 'detected community', 'jaccard'])
             for key, val in communities.iteritems():
-                tags_df['community'] = key
+                # tags_df['community'] = key
                 for account in val:
                     try:
                         outline = [key, truth[account[0]], account[1]]
-                    except IndexError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
+                    except TypeError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
                         outline = [key, truth[account], 1.0]
 
                     # try:
@@ -260,19 +260,24 @@ class CommunityDetector:
         """
         Calculates the recall against the ground truth community for a specific
         target community size.
-        interval - if specified will calculate recall at various intervals
+        :param communities: default dictionary of type community_name:[(acc_idx1, jacc1), (acc_idx2, jacc2), ...], ...].
+        The seeds plus all additions to the communities
+        :param n_seeds: Int. The number of seeds to initialise each community with
+        :param n_accounts: Int. The number of accounts in the dataset
+        :param interval: Int. if specified will calculate recall at various intervals
+        :return:
         """
-        truth = self.signatures.index
+        truth = self.signatures.community
         with open(self.outfolder + '/minrank.csv', 'ab') as f:
             writer = csv.writer(f)
             for key, val in communities.iteritems():
-                name, n_members = self.community_sizes[key]
+                n_members = self.community_sizes[key]
                 hit_count = 0
                 results = []
                 for idx, account in enumerate(val):
                     try:
                         true_community = truth[val[0]]
-                    except IndexError:
+                    except TypeError:
                         true_community = truth[val]
                     if true_community == key:
                         hit_count += 1
@@ -451,8 +456,8 @@ class CommunityDetector:
 
         for idx, rdm_seed in enumerate(random_seeds):
             # generate Twitter account indices to seed the local community detection
-            # seeds = self.generate_seeds(rdm_seed, n_seeds=5)  #  experimental value
-            seeds = self.generate_seeds(rdm_seed, n_seeds=1)  # debug value
+            # seeds = self.generate_seeds(rdm_seed, n_seeds=n_seeds)  #  experimental value
+            seeds = self.generate_seeds(rdm_seed, n_seeds=n_seeds)  # debug value
 
             print seeds
 
@@ -488,7 +493,8 @@ class CommunityDetector:
 
 
 if __name__ == '__main__':
-    n_seeds = 30  # The number of seeds to start with
+    n_seeds = 30  # The number of seeds to start with. Experimental value
+    n_seeds = 1
     result_interval = 10  # the intervals in number of accounts to snap the recall at
     # random_seeds = [451235, 35631241, 2315, 346213456, 134]  #  experimental choices of seeds
 
