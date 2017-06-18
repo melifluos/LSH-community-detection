@@ -146,7 +146,7 @@ class CommunityDetector:
         :param account_similarities: A pandas dataframe of account similarities indexed by the community names. Shape
         (n_communities, n_active_accounts)
         :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
-        :return: None
+        :return: None. The function alters seeds inplace.
         """
         # n_communities = len(seeds)
         # get an array of account identifiers in similarity order for every community
@@ -166,7 +166,7 @@ class CommunityDetector:
                 except KeyError:
                     print 'no accounts left to add to the community'
                     break
-                # convert from an index into the active accounts to a account id
+                # convert from an index into the active accounts to a account idx
                 account_idx = self.lsh_candidates.get_account_idx(active_idx)
                 # account_id = self.index_to_id(account_idx)
 
@@ -436,6 +436,7 @@ class CommunityDetector:
         name = group[0]
         hashes = group[1]
         n_accounts, n_hashes = hashes.shape
+        n_hashes -= 1  # don't count the community name column
 
         with open(self.outfolder + '/minrank.csv', 'wb') as f:
             writer = csv.writer(f)
@@ -457,7 +458,7 @@ class CommunityDetector:
         for idx, rdm_seed in enumerate(random_seeds):
             # generate Twitter account indices to seed the local community detection
             # seeds = self.generate_seeds(rdm_seed, n_seeds=n_seeds)  #  experimental value
-            seeds = self.generate_seeds(rdm_seed, n_seeds=n_seeds)  # debug value
+            seeds = self.generate_seeds(rdm_seed, group, n_seeds=n_seeds)  # debug value
 
             print seeds
 
@@ -473,7 +474,7 @@ class CommunityDetector:
 
         print 'experimentation completed for ', len(random_seeds), ' random restarts in ', time() - start_time
 
-    def generate_seeds(self, rdm_seed, n_seeds=5):
+    def generate_seeds(self, rdm_seed, group, n_seeds=5):
         """
         generates seed indices
         :param random_seed: seed for the random number generator
@@ -481,15 +482,26 @@ class CommunityDetector:
         :return A python dictionary of the form community_name: [seed indices]]
         """
         rand.seed(rdm_seed)
-
-        grouped = self.signatures.groupby('community')
-        sample = grouped.apply(lambda x: x.sample(n_seeds, random_state=rdm_seed))
+        community_name = group[0]
+        indices = group[1].index.values
+        sample = np.random.choice(indices, n_seeds, replace=False)
+        # pairs = [(idx, 1.0) for idx in sample]
         import collections
         seeds = collections.defaultdict(list)
-        for elem in sample.index:
-            seeds[elem[0]].append(elem[1])
+        for elem in sample:
+            seeds[community_name].append((elem, 1.0))
 
         return seeds
+
+
+        # grouped = self.signatures.groupby('community')
+        # sample = grouped.apply(lambda x: x.sample(n_seeds, random_state=rdm_seed))
+        # import collections
+        # seeds = collections.defaultdict(list)
+        # for elem in sample.index:
+        #     seeds[elem[0]].append(elem[1])
+        #
+        # return seeds
 
 
 if __name__ == '__main__':
