@@ -163,9 +163,9 @@ class CommunityDetector:
                 # get the index of the high jaccard account into the active indices
                 try:
                     active_idx = sorted_idx.ix[community, col_idx]
-                except IndexError:
+                except KeyError:
                     print 'no accounts left to add to the community'
-                    raise
+                    break
                 # convert from an index into the active accounts to a account id
                 account_idx = self.lsh_candidates.get_account_idx(active_idx)
                 # account_id = self.index_to_id(account_idx)
