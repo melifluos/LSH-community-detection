@@ -124,8 +124,8 @@ class CommunityDetector:
         Adds a new account to the average similarities
         :param community_similarities: A pandas dataframe with index community_names and shape (n_communities, n_active_accounts)
         :param row_idx: The index of this account into the active signature matrix
-        :param community: The name of current community
-        :param community_size: The size of the community called <community> ie. the seeds plus any additions
+        :param community: String. The name of the current community.
+        :param community_size: Int. The size of the community called <community> ie. the seeds plus any additions
         :return: None
         """
         # row_idx = self.id_to_index(new_account)
@@ -134,9 +134,8 @@ class CommunityDetector:
                                                                  self.active_signatures[row_idx, :])
         # perform the streaming mean update: mu(t+1) = (n*mu(t)+x)/(n+1)
         try:
-            community_similarities[community, :] = (community_size * community_similarities[community,
-                                                                     :] + new_account_similarities) / (
-                                                       community_size + 1)
+            community_similarities.ix[community, :] = (community_size * community_similarities.ix[community, :].values +
+                                                       new_account_similarities) / (community_size + 1)
         except ValueError:
             pass
 
@@ -144,7 +143,7 @@ class CommunityDetector:
         """
         Find the most similar account not already in each community and
         add them to it.
-        :param account_similarities: A pandas dataframe of account similarities indexed by the community names of shape
+        :param account_similarities: A pandas dataframe of account similarities indexed by the community names. Shape
         (n_communities, n_active_accounts)
         :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
         :return: None
@@ -196,11 +195,11 @@ class CommunityDetector:
 
     def get_account_similarities(self, all_signatures, test_signatures):
         """
-        Function that gets the estimated Jaccard for all accounts
+        Gets the estimated Jaccard for all accounts
         with all communities where a community is the union of its member accounts
-        ARGS:
-        :param all_signatures - minhash signatures of every account
-        :paartest_signatures - signatures of the accounts we wish to compare with all other accounts
+        :param all_signatures: Numpy array of shape (n_active_signatures, n_hashes). Minhash signatures of every active account
+        :param test_signatures: Numpy array of shape (n_hashes, n_test_accounts). Signatures of the accounts we wish to compare with all_signatures. n_test_accounts is usually 1
+        :return Numpy array of shape
         """
         n_accounts, signature_size = all_signatures.shape
         try:
@@ -223,32 +222,38 @@ class CommunityDetector:
     def output_results(self, communities):
         """
         outputs the communities to file
-        :param communities: the communities we have detected
+        :param communities: default dictionary of type community_name:[(acc_idx1, jacc1), (acc_idx2, jacc2), ...], ...].
+        The seeds plus all additions to the communities
         """
+        truth = self.signatures.index
         with open(self.outfolder + '/community_output.csv', 'wb') as f:
             writer = csv.writer(f)
             writer.writerow(
-                ['community'])
+                ['community', 'detected community', 'jaccard'])
             for key, val in communities.iteritems():
                 tags_df['community'] = key
                 for account in val:
                     try:
-                        result_line = tags_df.loc[tags_df['NetworkID'] == int(account[0])]
-                    except TypeError:
-                        print account[0], ' of type ', type(account[0])
-                        raise
-                        # result_line.loc['community'] = key
-                    try:
-                        result_line = result_line.iloc[0]
-                    except IndexError:
-                        pass
-                    out_line = list(result_line)
-                    try:  # add the jaccard with the community what the account was added
-                        out_line.append(account[2])
-                    except IndexError:  # They were a seed
-                        out_line.append(1)
-                    writer.writerow(out_line)
-        return
+                        outline = [key, truth[account[0]], account[1]]
+                    except IndexError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
+                        outline = [key, truth[account], 1.0]
+
+                    # try:
+                    #     result_line = tags_df.loc[tags_df['NetworkID'] == int(account[0])]
+                    # except TypeError:
+                    #     print account[0], ' of type ', type(account[0])
+                    #     raise
+                    #     # result_line.loc['community'] = key
+                    # try:
+                    #     result_line = result_line.iloc[0]
+                    # except IndexError:
+                    #     pass
+                    # out_line = list(result_line)
+                    # try:  # add the jaccard with the community what the account was added
+                    #     out_line.append(account[2])
+                    # except IndexError:  # They were a seed
+                    #     out_line.append(1)
+                    writer.writerow(outline)
 
     def calculate_recall(self, communities, n_seeds, n_accounts,
                          interval=None):
@@ -257,6 +262,7 @@ class CommunityDetector:
         target community size.
         interval - if specified will calculate recall at various intervals
         """
+        truth = self.signatures.index
         with open(self.outfolder + '/minrank.csv', 'ab') as f:
             writer = csv.writer(f)
             for key, val in communities.iteritems():
@@ -264,9 +270,16 @@ class CommunityDetector:
                 hit_count = 0
                 results = []
                 for idx, account in enumerate(val):
-                    result_line = tags_df.loc[tags_df['NetworkID'] == int(account[0])]
-                    if name in str(result_line['Tag']):
+                    try:
+                        true_community = truth[val[0]]
+                    except IndexError:
+                        true_community = truth[val]
+                    if true_community == key:
                         hit_count += 1
+
+                    # result_line = tags_df.loc[tags_df['NetworkID'] == int(account[0])]
+                    # if name in str(result_line['Tag']):
+                    #     hit_count += 1
                     if (idx + 1) % interval == 0:
                         # how much of the entire set did we get
                         total_recall = (hit_count - n_seeds) / float(n_members - n_seeds)
@@ -281,11 +294,11 @@ class CommunityDetector:
 
     def pageRank(self, seeds, k_iterations=3, beta=0.9):
         """
-        Calculate the personalised pageRank for each active vertex
-        :param seeds: the original seeds
-        :param k_iterations: number of steps for the random walks
-        :param beta: 1 - teleport probability
-        :return: A numpy array of shape (active_indices, 1)
+        Calculate the personalised PageRank for each active vertex
+        :param seeds: A default dictionary of community_name:[seed_idx1, seed_idx2,..], ... The original seeds
+        :param k_iterations: Int. Number of steps for the random walks
+        :param beta: Float. 1 - teleport probability
+        :return: A Pandas Dataframe shape (n_communities, n_active_accounts) indexed by community names. The personalized PageRank of every active account with respect to the seeds of each community
         """
         # get the full similarity matrix using jaccard_sim = 1 - jaccard_dist
         A = 1 - squareform(pdist(self.active_signatures, 'jaccard'))
@@ -338,12 +351,15 @@ class CommunityDetector:
                                 runtime_file=None):
         """
         runs community detection from seeds
-        :param seeds: - the seeds to start the community detection with. The process appends to the seeds
+        :param seeds: - default dictionary of type community_name:[acc_idx1, acc_idx2,...], ...].
+        The seeds to start the community detection with. The process appends to the seeds
         :param community sizes - the total size of the ground truthed communities
         :param n_accounts - the maximum number of accounts to grow the community to
         :param n_seeds: The number of seeds to use
         :param result_interval - the number of accounts that are added to the seeds between each reading of the recall
         :param runtime_file: write the runtime of these methods to file
+        :return default dictionary of type community_name:[acc_idx1, acc_idx2,...], ...].
+        The seeds to start the community detection with. The process appends to the seeds
         """
         start_time = time()
 
@@ -435,7 +451,8 @@ class CommunityDetector:
 
         for idx, rdm_seed in enumerate(random_seeds):
             # generate Twitter account indices to seed the local community detection
-            seeds = self.generate_seeds(rdm_seed)
+            # seeds = self.generate_seeds(rdm_seed, n_seeds=5)  #  experimental value
+            seeds = self.generate_seeds(rdm_seed, n_seeds=1)  # debug value
 
             print seeds
 
@@ -473,7 +490,9 @@ class CommunityDetector:
 if __name__ == '__main__':
     n_seeds = 30  # The number of seeds to start with
     result_interval = 10  # the intervals in number of accounts to snap the recall at
-    random_seeds = [451235, 35631241, 2315, 346213456, 134]
+    # random_seeds = [451235, 35631241, 2315, 346213456, 134]  #  experimental choices of seeds
+
+    random_seeds = [451235]
 
     inpath = '../../local_resources/twitter_data.csv'
     outfolder = '../../results'
