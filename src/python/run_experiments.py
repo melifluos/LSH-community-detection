@@ -235,7 +235,7 @@ class CommunityDetector:
                 for account in val:
                     try:
                         outline = [key, truth[account[0]], account[1]]
-                    except TypeError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
+                    except IndexError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
                         outline = [key, truth[account], 1.0]
 
                     # try:
@@ -274,6 +274,7 @@ class CommunityDetector:
                 n_members = self.community_sizes[key]
                 hit_count = 0
                 results = []
+                total_recall = 0
                 for idx, account in enumerate(val):
                     try:
                         true_community = truth[val[0]]
@@ -489,7 +490,7 @@ class CommunityDetector:
         import collections
         seeds = collections.defaultdict(list)
         for elem in sample:
-            seeds[community_name].append((elem, 1.0))
+            seeds[community_name].append(elem)
 
         return seeds
 
