@@ -86,7 +86,8 @@ class CommunityDetector:
                 # community = int(key) - 1
                 hit_count = 0
                 total_recall = 0
-                for idx, account_idx in enumerate(sorted_idx.ix[name, :]):
+                for idx, active_idx in enumerate(sorted_idx.ix[name, :]):
+                    account_idx = self.lsh_candidates.get_account_idx(active_idx)
                     # account_id = self.index_to_id(account_idx)
                     # jacc = account_similarities[community,account_idx]
                     try:
@@ -337,6 +338,7 @@ class CommunityDetector:
         # reduce the signatures matrix to only work with nearby accounts
         self.active_signatures = self.signatures.ix[self.lsh_candidates.active_indices, 1:].values
         n_candidates = len(self.active_signatures)
+        # assert n_accounts >= n_candidates, "Problem with LSH candidate generation. Number of candidates exceeds size of community"
         if n_candidates < n_accounts:
             print "not all community members are active. Will only consider ", n_candidates, ' of the ', n_accounts, ' accounts'
             n_additions = n_candidates
@@ -457,9 +459,9 @@ class CommunityDetector:
 if __name__ == '__main__':
     n_seeds = 30  # The number of seeds to start with. Experimental value
     result_interval = 10  # the intervals in number of accounts to snap the recall at
-    random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
+    # random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
 
-    # random_seeds = [451235]
+    random_seeds = [451235]
 
     inpath = '../../local_resources/twitter_data.csv'
     outfolder = '../../results'
