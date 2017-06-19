@@ -4,16 +4,12 @@ Run the experiments on the ground truth communities
 
 from __future__ import division
 import numpy as np
-# from scipy.sparse import lil_matrix, coo_matrix
-import os, csv, sys
-# import multiprocessing as mp
-# import pdb
+import csv
 import pandas as pd
 import LSH
-# pdb.set_trace()
 import cPickle as pickle
 from sets import Set
-from time import gmtime, strftime, time  # , sleep
+from time import gmtime, strftime, time
 from scipy.spatial.distance import pdist, squareform
 import random as rand
 
@@ -128,7 +124,6 @@ class CommunityDetector:
         :param community_size: Int. The size of the community called <community> ie. the seeds plus any additions
         :return: None
         """
-        # row_idx = self.id_to_index(new_account)
         # find the similarity between this account and all others
         new_account_similarities = self.get_account_similarities(self.active_signatures,
                                                                  self.active_signatures[row_idx, :])
@@ -148,7 +143,6 @@ class CommunityDetector:
         :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
         :return: None. The function alters seeds inplace.
         """
-        # n_communities = len(seeds)
         # get an array of account identifiers in similarity order for every community
         temp = np.argsort(-account_similarities.values)
         sorted_idx = pd.DataFrame(data=temp, index=account_similarities.index)
@@ -168,26 +162,18 @@ class CommunityDetector:
                     break
                 # convert from an index into the active accounts to a account idx
                 account_idx = self.lsh_candidates.get_account_idx(active_idx)
-                # account_id = self.index_to_id(account_idx)
-
                 # if account_id not in self.used_ids[community_idx] and account_id:
                 if account_idx not in self.used_idx[community] and account_idx:
                     # add the new account
                     # get the size of the community for the community update equation
                     community_size = len(seeds[community])
-                    # self.update_account_similarities(account_similarities, account_id, community_idx,
-                    #                                  community_size)
                     self.update_account_similarities(account_similarities, active_idx, community,
                                                      community_size)
                     # get the Jaccard for this new account with the community
                     jacc = account_similarities.ix[community, active_idx]
                     # add the new account to the community
-                    # account_handle = self.account_lookup.id(account_id)['handle']
-                    # seeds[str(community_idx + 1)].append((int(account_id), account_handle, jacc))
                     seeds[community].append((account_idx, jacc))
-                    # self.used_ids[community_idx].add(account_id)
                     self.used_idx[community].add(account_idx)
-
                     # move to the next community
                     break
                 else:  # check the next account
@@ -226,7 +212,9 @@ class CommunityDetector:
         The seeds plus all additions to the communities
         """
         truth = self.signatures.community
-        with open(self.outfolder + '/community_output.csv', 'wb') as f:
+        community = communities.keys()[0]
+        name = community.replace(" ", "_")
+        with open(self.outfolder + '/' + name + 'community_output.csv', 'wb') as f:
             writer = csv.writer(f)
             writer.writerow(
                 ['community', 'detected community', 'jaccard'])
@@ -237,22 +225,6 @@ class CommunityDetector:
                         outline = [key, truth[account[0]], account[1]]
                     except IndexError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
                         outline = [key, truth[account], 1.0]
-
-                    # try:
-                    #     result_line = tags_df.loc[tags_df['NetworkID'] == int(account[0])]
-                    # except TypeError:
-                    #     print account[0], ' of type ', type(account[0])
-                    #     raise
-                    #     # result_line.loc['community'] = key
-                    # try:
-                    #     result_line = result_line.iloc[0]
-                    # except IndexError:
-                    #     pass
-                    # out_line = list(result_line)
-                    # try:  # add the jaccard with the community what the account was added
-                    #     out_line.append(account[2])
-                    # except IndexError:  # They were a seed
-                    #     out_line.append(1)
                     writer.writerow(outline)
 
     def calculate_recall(self, communities, n_seeds, n_accounts,
@@ -268,7 +240,9 @@ class CommunityDetector:
         :return:
         """
         truth = self.signatures.community
-        with open(self.outfolder + '/minrank.csv', 'ab') as f:
+        name = communities.keys()[0]
+        path = self.outfolder + '/' + name.replace(" ", "_")
+        with open(path, 'ab') as f:
             writer = csv.writer(f)
             for key, val in communities.iteritems():
                 n_members = self.community_sizes[key]
@@ -282,20 +256,15 @@ class CommunityDetector:
                         true_community = truth[val]
                     if true_community == key:
                         hit_count += 1
-
-                    # result_line = tags_df.loc[tags_df['NetworkID'] == int(account[0])]
-                    # if name in str(result_line['Tag']):
-                    #     hit_count += 1
                     if (idx + 1) % interval == 0:
                         # how much of the entire set did we get
                         total_recall = (hit_count - n_seeds) / float(n_members - n_seeds)
                         results.append(format(total_recall, '.4f'))
-                if idx < n_accounts:  # this happens with bad communities when there are fewer LSH candidates than community members
+                # this happens with bad communities when there are fewer LSH candidates than community members
+                if idx < n_accounts:
                     n_cols = len(xrange(interval, n_accounts, interval))
                     for new_idx in range(n_cols - len(results)):
                         results.append(format(total_recall, '.4f'))  # recall won't improve as no more candidates
-                # what is our current percentage success rate
-                # set_recall = (hit_count - n_seeds) / float(target_size)
                 writer.writerow(results)
 
     def pageRank(self, seeds, k_iterations=3, beta=0.9):
@@ -315,18 +284,6 @@ class CommunityDetector:
         for idx, (community, accounts) in enumerate(seeds.iteritems()):
             index.append(community)
             seed_index_list = [self.lsh_candidates.get_active_idx(account) for account in accounts]
-            # seed_index_list = [self.lsh_candidates.get_active_idx(account) for community in seeds.values() for account in
-            #                    community]
-            # for set_num, accounts in seed_ids.iteritems():
-            #     # store the individual similarities for each account
-            #     for account_idx, account_id in enumerate(accounts):
-            #         try:
-            #             seed_index_list.append(self.id_to_index(account_id[0]))
-            #         except IndexError:
-            #             print account_id, 'NOT IN INDEX'
-            #         except KeyError:
-            #             print account_id, 'NOT IN LSH CANDIDATES - PROBABLY BECAUSE THERE IS NO T-FILE'
-            # Create seed and rank vectors
             R = np.ones((A.shape[0], 1))  # Rank vector
             R_total = R.sum()  # Total starting PageRank
             S = np.zeros((A.shape[0], 1))  # Seeds vector
@@ -339,7 +296,6 @@ class CommunityDetector:
             np.divide(A, connection_sum, out=A)
 
             # Start label propagation
-            t0 = time()
             for i in range(1, k_iterations + 1):
                 print "\n{} Starting itteration {}".format(strftime("%Y-%m-%d %H:%M:%S", gmtime()), i)
 
@@ -368,6 +324,8 @@ class CommunityDetector:
         The seeds to start the community detection with. The process appends to the seeds
         """
         start_time = time()
+        community = seeds.keys()[0]
+        name = community.replace(" ", "_")
 
         # Use the locality sensitive hashing table to conduct an initial nearest neighbours search
         if not isinstance(self.lsh_table, list):
@@ -391,12 +349,12 @@ class CommunityDetector:
         account_similarities = self.calculate_initial_average_similarity(seeds)
         avg_sim_time = time() - ast0
         self.output_best_initial_averages(account_similarities, seeds,
-                                          n_seeds, n_accounts, result_interval, file_name='initial_avgs.csv')
+                                          n_seeds, n_accounts, result_interval, file_name=name + '_initial_avgs.csv')
         prt0 = time()
         R = self.pageRank(seeds)
         pr_time = time() - prt0
         self.output_best_initial_averages(R, seeds, n_seeds, n_accounts,
-                                          result_interval, file_name='pagerank.csv')
+                                          result_interval, file_name=name + '_page_rank.csv')
 
         srt0 = time()
         for idx in range(n_additions):
@@ -409,7 +367,8 @@ class CommunityDetector:
 
         if runtime_file:
             writer = csv.writer(runtime_file)
-            community = self.outfolder.rsplit('/', 1)[-1]
+            community = seeds.keys()[0]
+            # community = self.outfolder.rsplit('/', 1)[-1]
             writer.writerow(['page_rank', community, pr_time])
             writer.writerow(['min_rank', community, sim_rank_time])
             writer.writerow(['avg_sim_time', community, avg_sim_time])
@@ -439,17 +398,20 @@ class CommunityDetector:
         n_accounts, n_hashes = hashes.shape
         n_hashes -= 1  # don't count the community name column
 
-        with open(self.outfolder + '/minrank.csv', 'wb') as f:
+        minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        with open(minrank_path, 'wb') as f:
             writer = csv.writer(f)
             cols = xrange(result_interval, n_accounts, result_interval)
             writer.writerow(cols)
 
-        with open(self.outfolder + '/initial_avgs.csv', 'wb') as f:
+        initial_averages_path = self.outfolder + "/" + name.replace(" ", "_") + '_initial_avgs.csv'
+        with open(initial_averages_path, 'wb') as f:
             writer = csv.writer(f)
             cols = xrange(result_interval, n_accounts, result_interval)
             writer.writerow(cols)
 
-        with open(self.outfolder + '/pagerank.csv', 'wb') as f:
+        page_rank_path = self.outfolder + "/" + name.replace(" ", "_") + '_page_rank.csv'
+        with open(page_rank_path, 'wb') as f:
             writer = csv.writer(f)
             cols = xrange(result_interval, n_accounts, result_interval)
             writer.writerow(cols)
@@ -458,7 +420,6 @@ class CommunityDetector:
 
         for idx, rdm_seed in enumerate(random_seeds):
             # generate Twitter account indices to seed the local community detection
-            # seeds = self.generate_seeds(rdm_seed, n_seeds=n_seeds)  #  experimental value
             seeds = self.generate_seeds(rdm_seed, group, n_seeds=n_seeds)  # debug value
 
             print seeds
@@ -468,7 +429,6 @@ class CommunityDetector:
                                                        result_interval=result_interval, runtime_file=runtime_file)
             print 'completed for ', n_accounts, 'accounts in ', time() - start_time
 
-            # print 'community shape ',communities
             self.output_results(communities)
             self.calculate_recall(communities, n_seeds, n_accounts,
                                   result_interval)
@@ -486,7 +446,6 @@ class CommunityDetector:
         community_name = group[0]
         indices = group[1].index.values
         sample = np.random.choice(indices, n_seeds, replace=False)
-        # pairs = [(idx, 1.0) for idx in sample]
         import collections
         seeds = collections.defaultdict(list)
         for elem in sample:
@@ -495,23 +454,12 @@ class CommunityDetector:
         return seeds
 
 
-        # grouped = self.signatures.groupby('community')
-        # sample = grouped.apply(lambda x: x.sample(n_seeds, random_state=rdm_seed))
-        # import collections
-        # seeds = collections.defaultdict(list)
-        # for elem in sample.index:
-        #     seeds[elem[0]].append(elem[1])
-        #
-        # return seeds
-
-
 if __name__ == '__main__':
     n_seeds = 30  # The number of seeds to start with. Experimental value
-    n_seeds = 1
     result_interval = 10  # the intervals in number of accounts to snap the recall at
-    # random_seeds = [451235, 35631241, 2315, 346213456, 134]  #  experimental choices of seeds
+    random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
 
-    random_seeds = [451235]
+    # random_seeds = [451235]
 
     inpath = '../../local_resources/twitter_data.csv'
     outfolder = '../../results'
