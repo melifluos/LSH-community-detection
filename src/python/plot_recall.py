@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 21 10:13:38 2015
-
-@author: sc1
+@author: ben chamberlain
 """
 from __future__ import division
 import pandas as pd
@@ -10,8 +8,9 @@ import matplotlib.pyplot as plt
 from math import sqrt, ceil, floor
 import numpy as np
 from sklearn.metrics import auc
-import csv  #  to write out area under curves
+import csv  # to write out area under curves
 from datetime import datetime
+import os
 
 from matplotlib import rcParams
 
@@ -27,17 +26,21 @@ rcParams['font.serif'] = ['Computer Modern Roman']
 
 fig_dim = (3.1382316313823164, 1.9395338127643029)
 
-METHODS = ['pagerank', 'initial_avgs', 'minrank']  # clustering methods to compare
-#METHODS = ['pagerank', 'initial_avgs']  # clustering methods to compare
+METHODS = ['page_rank', 'initial_avgs', 'minrank']  # clustering methods to compare
+# METHODS = ['pagerank', 'initial_avgs']  # clustering methods to compare
 COLOURS = ['r', 'b', 'y']  # colours to plot the different methods
 
 
-def read_recall(folder, method):
+def read_recall(folder, community, method):
     """
-    reads a recall file and returns the average
+    read the recall files from disk
+    :param folder: String. folder containing the data
+    :param community: String. Name of the community. May contain spaces
+    :param method: String. Name of the method
+    :return:
     """
-    data_path = './' + folder + '/' + method + '.csv'
-    print data_path
+    filename = community.replace(" ", "_") + "_" + method + ".csv"
+    data_path = os.path.join(folder, filename)
     df = pd.read_csv(data_path)
     rows, cols = df.shape
     index = df.columns.astype(np.int)
@@ -66,10 +69,18 @@ def uniform_sample(n, m):
     return np.array(indices)
 
 
-def make_plot(folder, axarr=None, pos=None, n_points=20, show_legend=False, auc_file_writer=None):
+def make_plot(folder, community, axarr=None, pos=None, n_points=20, show_legend=False, auc_file_writer=None):
     """
     folder - the location of the results
     fig,pos - pass a figure an coords in the figure to compound plot
+    :param folder: the location of the results
+    :param community: the name of the community
+    :param axarr:
+    :param pos:
+    :param n_points:
+    :param show_legend:
+    :param auc_file_writer:
+    :return:
     """
     if axarr == None:
         fig = plt.figure(figsize=fig_dim)
@@ -85,7 +96,7 @@ def make_plot(folder, axarr=None, pos=None, n_points=20, show_legend=False, auc_
 
     area_under_curve = []
     for idx, method in enumerate(METHODS):
-        index, mean, std_error = read_recall(folder, method)
+        index, mean, std_error = read_recall(folder, community, method)
         area_under_curve.append(auc(index, mean))
         plot_indices = uniform_sample(n_points, len(
             index))  # don't want to plot all of the indices as the error bars look cluttered
@@ -104,15 +115,19 @@ def make_plot(folder, axarr=None, pos=None, n_points=20, show_legend=False, auc_
         plt.savefig("local_results/recall_figs/recall_vs_range_{}.pdf".format(tag))
         plt.close()
 
-
     return index, mean, std_error
 
 
 if __name__ == '__main__':
-    # index,mean,std = read_recall('M:/workspace/science_sandbox/locality_sensitive_hashing/local_resources/ICWSM15/pornstar/recall.csv')
     plt.close('all')
-    communities = pd.read_csv('local_results/tags_to_plot.csv')
-    community_folder = 'local_resources/ICWSM15/'  # Where to get the data for the plots
+    inpath = '../../local_resources/twitter_data.csv'
+    outfolder = '../../results'
+
+    data = pd.read_csv(inpath, index_col=0)
+    data.index.name = 'community'
+
+    communities = data.index.unique().values
+    community_folder = '../results'  # Where to get the data for the plots
     n_communities = len(communities)
     # no longer used
     shape = int(ceil(sqrt(n_communities)))
@@ -121,22 +136,22 @@ if __name__ == '__main__':
     fig, axarr = plt.subplots(n_plot_rows, n_plot_cols, sharex='col', sharey='row')
     ypos = -1
     xpos = 0
-    with open('local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv', 'wb') as f:
+    with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv', 'wb') as f:
         writer = csv.writer(f)
         writer.writerow(['tags'] + METHODS)
-    for idx, community in enumerate(communities['Community']):
+    for idx, community in enumerate(communities):
         print community
         xpos = int(idx % n_plot_cols)
         if xpos == 0:
             ypos += 1
-        with open('local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv', 'ab') as f:
+        with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv', 'ab') as f:
             writer = csv.writer(f)
-            make_plot(community_folder + community, axarr, (ypos, xpos), auc_file_writer=writer)
+            make_plot(outfolder, community, axarr, (ypos, xpos), auc_file_writer=writer)
 
     for row in axarr:
         for ax in row:
             ax.set_ylim(bottom=0.)
 
     # fig.tight_layout(pad=0.1)
-    plt.savefig("local_results/recall_figs/recall_vs_range" + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + ".pdf")
+    plt.savefig("../../local_results/recall_figs/recall_vs_range" + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + ".pdf")
     plt.close('all')
