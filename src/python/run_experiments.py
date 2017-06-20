@@ -77,25 +77,19 @@ class CommunityDetector:
         sorted_vals = np.argsort(-account_similarities.values)
         sorted_idx = pd.DataFrame(data=sorted_vals, index=account_similarities.index)
 
-        # n_communities = account_similarities.shape[0]
         with open(self.outfolder + '/' + file_name, 'ab') as f:
             writer = csv.writer(f)
             for name, val in seeds.iteritems():
                 n_members = self.community_sizes[name]
                 out_line = []
-                # community = int(key) - 1
                 hit_count = 0
                 total_recall = 0
                 for idx, active_idx in enumerate(sorted_idx.ix[name, :]):
                     account_idx = self.lsh_candidates.get_account_idx(active_idx)
-                    # account_id = self.index_to_id(account_idx)
-                    # jacc = account_similarities[community,account_idx]
                     try:
                         result_line = self.signatures.ix[account_idx, :]
-                        # result_line = tags_df.loc[tags_df['NetworkID'] == int(account_id)]
                     except TypeError:
                         print account_idx, ' of type ', type(account_idx), 'caused type error'
-                        # print account_id, ' of type ', type(account_id), 'caused type error'
                         raise
                     if name == str(result_line['community']):
                         hit_count += 1
@@ -103,7 +97,6 @@ class CommunityDetector:
                         # how much of the entire set did we get
                         total_recall = (hit_count - n_seeds) / float(n_members - n_seeds)
                         out_line.append(format(total_recall, '.4f'))
-
                     # stop when we have enough accounts
                     if idx == n_accounts:
                         writer.writerow(out_line)
@@ -215,12 +208,11 @@ class CommunityDetector:
         truth = self.signatures.community
         community = communities.keys()[0]
         name = community.replace(" ", "_")
-        with open(self.outfolder + '/' + name + 'community_output.csv', 'wb') as f:
+        with open(self.outfolder + '/' + name + '_community_output.csv', 'wb') as f:
             writer = csv.writer(f)
             writer.writerow(
                 ['community', 'detected community', 'jaccard'])
             for key, val in communities.iteritems():
-                # tags_df['community'] = key
                 for account in val:
                     try:
                         outline = [key, truth[account[0]], account[1]]
@@ -242,8 +234,8 @@ class CommunityDetector:
         """
         truth = self.signatures.community
         name = communities.keys()[0]
-        path = self.outfolder + '/' + name.replace(" ", "_")
-        with open(path, 'ab') as f:
+        minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        with open(minrank_path, 'ab') as f:
             writer = csv.writer(f)
             for key, val in communities.iteritems():
                 n_members = self.community_sizes[key]
@@ -370,7 +362,6 @@ class CommunityDetector:
         if runtime_file:
             writer = csv.writer(runtime_file)
             community = seeds.keys()[0]
-            # community = self.outfolder.rsplit('/', 1)[-1]
             writer.writerow(['page_rank', community, pr_time])
             writer.writerow(['min_rank', community, sim_rank_time])
             writer.writerow(['avg_sim_time', community, avg_sim_time])
@@ -432,6 +423,7 @@ class CommunityDetector:
             print 'completed for ', n_accounts, 'accounts in ', time() - start_time
 
             self.output_results(communities)
+            # generate minrank output
             self.calculate_recall(communities, n_seeds, n_accounts,
                                   result_interval)
 
