@@ -45,8 +45,8 @@ def read_recall(folder, community, method):
     rows, cols = df.shape
     index = df.columns.astype(np.int)
     index = index / max(index)
-    mean = df.iloc[range(1, rows, 2), :].mean()
-    std_error = df.iloc[range(1, rows, 2), :].std() / sqrt(rows)
+    mean = df.mean(axis=0)
+    std_error = df.std(axis=0) / sqrt(rows)
     return index, mean, std_error
 
 
@@ -136,7 +136,8 @@ if __name__ == '__main__':
     fig, axarr = plt.subplots(n_plot_rows, n_plot_cols, sharex='col', sharey='row')
     ypos = -1
     xpos = 0
-    with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv', 'wb') as f:
+    with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv',
+              'wb') as f:
         writer = csv.writer(f)
         writer.writerow(['tags'] + METHODS)
     for idx, community in enumerate(communities):
@@ -144,7 +145,8 @@ if __name__ == '__main__':
         xpos = int(idx % n_plot_cols)
         if xpos == 0:
             ypos += 1
-        with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv', 'ab') as f:
+        with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv',
+                  'ab') as f:
             writer = csv.writer(f)
             make_plot(outfolder, community, axarr, (ypos, xpos), auc_file_writer=writer)
 
@@ -153,5 +155,6 @@ if __name__ == '__main__':
             ax.set_ylim(bottom=0.)
 
     # fig.tight_layout(pad=0.1)
-    plt.savefig("../../local_results/recall_figs/recall_vs_range" + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + ".pdf")
+    plt.savefig(
+        "../../local_results/recall_figs/recall_vs_range" + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + ".pdf")
     plt.close('all')

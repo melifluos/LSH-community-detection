@@ -358,6 +358,8 @@ class CommunityDetector:
             if (idx + 1) % 10 == 0:
                 print idx + 1, 'accounts added'
         sim_rank_time = time() - srt0
+        # reset the used IDs after the loop
+        self.used_ids = {}
 
         if runtime_file:
             writer = csv.writer(runtime_file)
@@ -451,9 +453,9 @@ class CommunityDetector:
 if __name__ == '__main__':
     n_seeds = 30  # The number of seeds to start with. Experimental value
     result_interval = 10  # the intervals in number of accounts to snap the recall at
-    # random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
+    random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
 
-    random_seeds = [451235]
+    # random_seeds = [451235]
 
     inpath = '../../local_resources/twitter_data.csv'
     outfolder = '../../results'
