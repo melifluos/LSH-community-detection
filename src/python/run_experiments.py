@@ -291,7 +291,7 @@ class CommunityDetector:
 
             with open(minrank_path, 'ab') as f:
                 writer = csv.writer(f)
-            writer.writerow(recall)
+                writer.writerow(recall)
 
 
     def calculate_recall1(self, communities, n_seeds, n_accounts,
