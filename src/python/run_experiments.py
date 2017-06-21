@@ -287,11 +287,11 @@ class CommunityDetector:
                 recall.append(total_recall)
         if n_none_seeds > len(minrank_result):
             last_val = recall[-1]
-            for dummy_i in range(n_none_seeds - len(minrank_result)):
+            for dummy_i in range(0, (n_none_seeds - len(minrank_result)) // interval):
                 recall.append(last_val)  # recall can't get any higher as LSH didn't return any more results
 
-        with open(minrank_path, 'ab') as f:
-            writer = csv.writer(f)
+            with open(minrank_path, 'ab') as f:
+                writer = csv.writer(f)
             writer.writerow(recall)
             #     for key, val in communities.iteritems():
             #         n_members = self.community_sizes[key]
@@ -584,6 +584,7 @@ if __name__ == '__main__':
         grouped = data.groupby('community')
         community_size = grouped.size()
         for group in grouped:
-            community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
+            if group[0] == 'cosmetics':
+                community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
