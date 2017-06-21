@@ -11,7 +11,6 @@ import cPickle as pickle
 from sets import Set
 from time import gmtime, strftime, time
 from scipy.spatial.distance import pdist, squareform
-import random as rand
 
 
 class CommunityDetector:
@@ -293,28 +292,7 @@ class CommunityDetector:
             with open(minrank_path, 'ab') as f:
                 writer = csv.writer(f)
             writer.writerow(recall)
-            #     for key, val in communities.iteritems():
-            #         n_members = self.community_sizes[key]
-            #         hit_count = 0
-            #         results = []
-            #         total_recall = 0
-            #         for idx, account in enumerate(val):
-            #             try:
-            #                 true_community = truth[val[0]]
-            #             except TypeError:
-            #                 true_community = truth[val]
-            #             if true_community == key:
-            #                 hit_count += 1
-            #             if (idx + 1) % interval == 0:
-            #                 # how much of the entire set did we get
-            #                 total_recall = (hit_count - n_seeds) / float(n_ - n_seeds)
-            #                 results.append(format(total_recall, '.4f'))
-            #         # this happens with bad communities when there are fewer LSH candidates than community members
-            #         if idx < n_accounts:
-            #             n_cols = len(xrange(interval, n_accounts, interval))
-            #             for new_idx in range(n_cols - len(results)):
-            #                 results.append(format(total_recall, '.4f'))  # recall won't improve as no more candidates
-            #         writer.writerow(results)
+
 
     def calculate_recall1(self, communities, n_seeds, n_accounts,
                           interval=None):
@@ -584,7 +562,6 @@ if __name__ == '__main__':
         grouped = data.groupby('community')
         community_size = grouped.size()
         for group in grouped:
-            if group[0] == 'cosmetics':
-                community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
+            community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time

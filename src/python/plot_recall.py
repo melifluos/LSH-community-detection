@@ -27,7 +27,6 @@ rcParams['font.serif'] = ['Computer Modern Roman']
 fig_dim = (3.1382316313823164, 1.9395338127643029)
 
 METHODS = ['page_rank', 'initial_avgs', 'minrank']  # clustering methods to compare
-# METHODS = ['pagerank', 'initial_avgs']  # clustering methods to compare
 COLOURS = ['r', 'b', 'y']  # colours to plot the different methods
 
 
