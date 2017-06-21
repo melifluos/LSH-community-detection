@@ -95,6 +95,7 @@ def query_account(account_idx, signatures, lsh_table, return_query_id, matches=N
     :param signatures - A pandas dataframe containing the minhash signature matrix for all accounts
     :param lsh_table - the LSH lookup table
     :param matches - the number of matches. Use none if this is not part of a larger
+    :param return_query_id: Boolean. Add the query index to the return values
     query
     """
     # assert isinstance(account_idx, object)

@@ -91,18 +91,18 @@ class CommunityDetector:
                     except TypeError:
                         print account_idx, ' of type ', type(account_idx), 'caused type error'
                         raise
-                    if name == str(result_line['community']):
+                    if (name == str(result_line['community'])) and (account_idx not in val):
                         hit_count += 1
                     if (idx + 1) % interval == 0:  # record data at this point
                         # how much of the entire set did we get
-                        total_recall = (hit_count - n_seeds) / float(n_members - n_seeds)
+                        total_recall = (hit_count) / float(n_members - n_seeds)
                         out_line.append(format(total_recall, '.4f'))
                     # stop when we have enough accounts
                     if idx == n_accounts:
                         writer.writerow(out_line)
                         break
 
-                if idx < n_accounts:  # this happens with bad communities when there are fewer LSH candidates than community members
+                if len(out_line) < n_accounts:  # this happens with bad communities when there are fewer LSH candidates than community members
                     n_cols = len(xrange(interval, n_accounts, interval))
                     for idx in range(n_cols - len(out_line)):
                         out_line.append(format(total_recall,
@@ -204,23 +204,92 @@ class CommunityDetector:
         outputs the communities to file
         :param communities: default dictionary of type community_name:[(acc_idx1, jacc1), (acc_idx2, jacc2), ...], ...].
         The seeds plus all additions to the communities
+        return: A pandas Dataframe of shape (len(communities.values()), 2) and columns ['detected_community', 'jaccard']
         """
         truth = self.signatures.community
         community = communities.keys()[0]
         name = community.replace(" ", "_")
-        with open(self.outfolder + '/' + name + '_community_output.csv', 'wb') as f:
-            writer = csv.writer(f)
-            writer.writerow(
-                ['community', 'detected community', 'jaccard'])
-            for key, val in communities.iteritems():
-                for account in val:
-                    try:
-                        outline = [key, truth[account[0]], account[1]]
-                    except IndexError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
-                        outline = [key, truth[account], 1.0]
-                    writer.writerow(outline)
+        pairs = communities.values()[0]
+        # add jaccard of 1.0 to the seeds and look up truth communities of accounts
+        full_pairs = [(truth[val[0]], val[1]) if hasattr(val, '__iter__') else (truth[val], 1.0) for val in pairs]
+        # convert to numpy array
+        data = np.array(zip(*full_pairs))
+        df = pd.DataFrame(columns=['detected_community', 'jaccard'], index=range(data.shape[1]), data=data.T)
+        df.index.name = community
+        path = self.outfolder + '/' + name + '_community_output.csv'
+        df.to_csv(path, index=None)
+        return df
+
+        # with open(self.outfolder + '/' + name + '_community_output.csv', 'wb') as f:
+        #     writer = csv.writer(f)
+        #     writer.writerow(
+        #         ['community', 'detected community', 'jaccard'])
+        #     for key, val in communities.iteritems():
+        #         for account in val:
+        #             try:
+        #                 outline = [key, truth[account[0]], account[1]]
+        #             except IndexError:  # it was a seed, so doesn't have a jaccard. Put in a jaccard of 1.0
+        #                 outline = [key, truth[account], 1.0]
+        #             writer.writerow(outline)
 
     def calculate_recall(self, communities, n_seeds, n_accounts,
+                         interval=None):
+        """
+        Calculates the recall against the ground truth community for a specific
+        target community size.
+        :param communities: default dictionary of type community_name:[(acc_idx1, jacc1), (acc_idx2, jacc2), ...], ...].
+        The seeds plus all additions to the communities
+        :param n_seeds: Int. The number of seeds to initialise each community with
+        :param n_accounts: Int. The number of accounts in the dataset
+        :param interval: Int. if specified will calculate recall at various intervals
+        :return:
+        """
+        name = communities.index.name
+        minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        minrank_result = communities.detected_community.values
+        # remove seeds
+        minrank_result = minrank_result[n_seeds:]
+        n_none_seeds = n_accounts - n_seeds
+        recall = []
+        hit_count = 0
+        for idx, true_community in enumerate(minrank_result):
+            if true_community == name:
+                hit_count += 1
+            if (idx + 1) % interval == 0:
+                total_recall = hit_count / float(n_none_seeds)
+                recall.append(total_recall)
+        if n_none_seeds > len(minrank_result):
+            last_val = recall[-1]
+            for dummy_i in range(n_none_seeds - len(minrank_result)):
+                recall.append(last_val)  # recall can't get any higher as LSH didn't return any more results
+
+        with open(minrank_path, 'ab') as f:
+            writer = csv.writer(f)
+            writer.writerow(recall)
+        #     for key, val in communities.iteritems():
+        #         n_members = self.community_sizes[key]
+        #         hit_count = 0
+        #         results = []
+        #         total_recall = 0
+        #         for idx, account in enumerate(val):
+        #             try:
+        #                 true_community = truth[val[0]]
+        #             except TypeError:
+        #                 true_community = truth[val]
+        #             if true_community == key:
+        #                 hit_count += 1
+        #             if (idx + 1) % interval == 0:
+        #                 # how much of the entire set did we get
+        #                 total_recall = (hit_count - n_seeds) / float(n_ - n_seeds)
+        #                 results.append(format(total_recall, '.4f'))
+        #         # this happens with bad communities when there are fewer LSH candidates than community members
+        #         if idx < n_accounts:
+        #             n_cols = len(xrange(interval, n_accounts, interval))
+        #             for new_idx in range(n_cols - len(results)):
+        #                 results.append(format(total_recall, '.4f'))  # recall won't improve as no more candidates
+        #         writer.writerow(results)
+
+    def calculate_recall1(self, communities, n_seeds, n_accounts,
                          interval=None):
         """
         Calculates the recall against the ground truth community for a specific
@@ -423,10 +492,10 @@ class CommunityDetector:
                                                        n_accounts=n_accounts, n_seeds=n_seeds,
                                                        result_interval=result_interval, runtime_file=runtime_file)
             print 'completed for ', n_accounts, 'accounts in ', time() - start_time
-
-            self.output_results(communities)
+            # write minrank discovered community labels to file for analysis
+            minrank_community_df = self.output_results(communities)
             # generate minrank output
-            self.calculate_recall(communities, n_seeds, n_accounts,
+            self.calculate_recall(minrank_community_df, n_seeds, n_accounts,
                                   result_interval)
 
         print 'experimentation completed for ', len(random_seeds), ' random restarts in ', time() - start_time
