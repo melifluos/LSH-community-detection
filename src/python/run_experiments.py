@@ -102,7 +102,8 @@ class CommunityDetector:
                         writer.writerow(out_line)
                         break
 
-                if len(out_line) < n_accounts:  # this happens with bad communities when there are fewer LSH candidates than community members
+                if len(
+                        out_line) < n_accounts:  # this happens with bad communities when there are fewer LSH candidates than community members
                     n_cols = len(xrange(interval, n_accounts, interval))
                     for idx in range(n_cols - len(out_line)):
                         out_line.append(format(total_recall,
@@ -118,15 +119,13 @@ class CommunityDetector:
         :param community_size: Int. The size of the community called <community> ie. the seeds plus any additions
         :return: None
         """
+        indices = community_similarities.columns.values  # this table is transposed
         # find the similarity between this account and all others
         new_account_similarities = self.get_account_similarities(self.active_signatures,
                                                                  self.active_signatures[row_idx, :])
         # perform the streaming mean update: mu(t+1) = (n*mu(t)+x)/(n+1)
-        try:
-            community_similarities.ix[community, :] = (community_size * community_similarities.ix[community, :].values +
-                                                       new_account_similarities) / (community_size + 1)
-        except ValueError:
-            pass
+        community_similarities.ix[community, :] = (community_size * community_similarities.ix[community, :].values +
+                                                   new_account_similarities[:, indices]) / (community_size + 1)
 
     def increment_communities(self, account_similarities, seeds):
         """
@@ -137,41 +136,66 @@ class CommunityDetector:
         :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
         :return: None. The function alters seeds inplace.
         """
-        # get an array of account identifiers in similarity order for every community
-        temp = np.argsort(-account_similarities.values)
-        sorted_idx = pd.DataFrame(data=temp, index=account_similarities.index)
+        community = seeds.keys()[0]
+        sorted_idx = account_similarities.sort_values(community, axis=1, ascending=False)
+        active_idx = sorted_idx.columns[0]
 
-        # for each community, try the accounts in decreasing similarity order
-        for community in seeds.keys():
-            if not community in self.used_idx:
-                # self.used_ids[community_idx] = Set([])
-                self.used_idx[community] = Set([])
-            col_idx = 0
-            while True:
-                # get the index of the high jaccard account into the active indices
-                try:
-                    active_idx = sorted_idx.ix[community, col_idx]
-                except KeyError:
-                    print 'no accounts left to add to the community'
-                    break
-                # convert from an index into the active accounts to a account idx
-                account_idx = self.lsh_candidates.get_account_idx(active_idx)
-                # if account_id not in self.used_ids[community_idx] and account_id:
-                if account_idx not in self.used_idx[community] and account_idx:
-                    # add the new account
-                    # get the size of the community for the community update equation
-                    community_size = len(seeds[community])
-                    self.update_account_similarities(account_similarities, active_idx, community,
-                                                     community_size)
-                    # get the Jaccard for this new account with the community
-                    jacc = account_similarities.ix[community, active_idx]
-                    # add the new account to the community
-                    seeds[community].append((account_idx, jacc))
-                    self.used_idx[community].add(account_idx)
-                    # move to the next community
-                    break
-                else:  # check the next account
-                    col_idx += 1
+        account_idx = self.lsh_candidates.get_account_idx(active_idx)
+
+        community_size = len(seeds[community])
+        self.update_account_similarities(account_similarities, active_idx, community,
+                                         community_size)
+        # get the Jaccard for this new account with the community
+        jacc = account_similarities.ix[community, active_idx]
+        # add the new account to the community
+        seeds[community].append((account_idx, jacc))
+        # remove this account once added
+        account_similarities.drop(active_idx, axis=1, inplace=True)
+
+    # def increment_communities1(self, account_similarities, seeds):
+    #     """
+    #     Find the most similar account not already in each community and
+    #     add them to it.
+    #     :param account_similarities: A pandas dataframe of account similarities indexed by the community names. Shape
+    #     (n_communities, n_active_accounts)
+    #     :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
+    #     :return: None. The function alters seeds inplace.
+    #     """
+    #     # get an array of account identifiers in similarity order for every community
+    #     temp = np.argsort(-account_similarities.values)
+    #     sorted_idx = pd.DataFrame(data=temp, index=account_similarities.index)
+    #
+    #     # for each community, try the accounts in decreasing similarity order
+    #     for community in seeds.keys():
+    #         if not community in self.used_idx:
+    #             # self.used_ids[community_idx] = Set([])
+    #             self.used_idx[community] = Set([])
+    #         col_idx = 0
+    #         while True:
+    #             # get the index of the high jaccard account into the active indices
+    #             try:
+    #                 active_idx = sorted_idx.ix[community, col_idx]
+    #             except KeyError:
+    #                 print 'no accounts left to add to the community'
+    #                 break
+    #             # convert from an index into the active accounts to a account idx
+    #             account_idx = self.lsh_candidates.get_account_idx(active_idx)
+    #             # if account_id not in self.used_ids[community_idx] and account_id:
+    #             if account_idx not in self.used_idx[community] and account_idx:
+    #                 # add the new account
+    #                 # get the size of the community for the community update equation
+    #                 community_size = len(seeds[community])
+    #                 self.update_account_similarities(account_similarities, active_idx, community,
+    #                                                  community_size)
+    #                 # get the Jaccard for this new account with the community
+    #                 jacc = account_similarities.ix[community, active_idx]
+    #                 # add the new account to the community
+    #                 seeds[community].append((account_idx, jacc))
+    #                 self.used_idx[community].add(account_idx)
+    #                 # move to the next community
+    #                 break
+    #             else:  # check the next account
+    #                 col_idx += 1
 
     def get_account_similarities(self, all_signatures, test_signatures):
         """
@@ -179,7 +203,7 @@ class CommunityDetector:
         with all communities where a community is the union of its member accounts
         :param all_signatures: Numpy array of shape (n_active_signatures, n_hashes). Minhash signatures of every active account
         :param test_signatures: Numpy array of shape (n_hashes, n_test_accounts). Signatures of the accounts we wish to compare with all_signatures. n_test_accounts is usually 1
-        :return Numpy array of shape
+        :return Numpy array of shape (n_communities, n_active_signatures)
         """
         n_accounts, signature_size = all_signatures.shape
         try:
@@ -266,31 +290,31 @@ class CommunityDetector:
         with open(minrank_path, 'ab') as f:
             writer = csv.writer(f)
             writer.writerow(recall)
-        #     for key, val in communities.iteritems():
-        #         n_members = self.community_sizes[key]
-        #         hit_count = 0
-        #         results = []
-        #         total_recall = 0
-        #         for idx, account in enumerate(val):
-        #             try:
-        #                 true_community = truth[val[0]]
-        #             except TypeError:
-        #                 true_community = truth[val]
-        #             if true_community == key:
-        #                 hit_count += 1
-        #             if (idx + 1) % interval == 0:
-        #                 # how much of the entire set did we get
-        #                 total_recall = (hit_count - n_seeds) / float(n_ - n_seeds)
-        #                 results.append(format(total_recall, '.4f'))
-        #         # this happens with bad communities when there are fewer LSH candidates than community members
-        #         if idx < n_accounts:
-        #             n_cols = len(xrange(interval, n_accounts, interval))
-        #             for new_idx in range(n_cols - len(results)):
-        #                 results.append(format(total_recall, '.4f'))  # recall won't improve as no more candidates
-        #         writer.writerow(results)
+            #     for key, val in communities.iteritems():
+            #         n_members = self.community_sizes[key]
+            #         hit_count = 0
+            #         results = []
+            #         total_recall = 0
+            #         for idx, account in enumerate(val):
+            #             try:
+            #                 true_community = truth[val[0]]
+            #             except TypeError:
+            #                 true_community = truth[val]
+            #             if true_community == key:
+            #                 hit_count += 1
+            #             if (idx + 1) % interval == 0:
+            #                 # how much of the entire set did we get
+            #                 total_recall = (hit_count - n_seeds) / float(n_ - n_seeds)
+            #                 results.append(format(total_recall, '.4f'))
+            #         # this happens with bad communities when there are fewer LSH candidates than community members
+            #         if idx < n_accounts:
+            #             n_cols = len(xrange(interval, n_accounts, interval))
+            #             for new_idx in range(n_cols - len(results)):
+            #                 results.append(format(total_recall, '.4f'))  # recall won't improve as no more candidates
+            #         writer.writerow(results)
 
     def calculate_recall1(self, communities, n_seeds, n_accounts,
-                         interval=None):
+                          interval=None):
         """
         Calculates the recall against the ground truth community for a specific
         target community size.
@@ -371,6 +395,22 @@ class CommunityDetector:
 
         return df
 
+    def remove_seeds_from_similarities(self, similarities, seeds):
+        """
+        remove the seed accounts from the account similarities so that they are not added by the minrank
+        :param account_similarities: A pandas dataframe of account similarities indexed by the community names. Shape
+        (n_communities, n_active_accounts)
+        :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
+        :return: None. The function alters seeds inplace.
+        """
+        seed_indices = []
+        for seed in seeds.values()[0]:
+            seed_indices.append(self.lsh_candidates.get_active_idx(seed))
+
+        similarities.drop(seed_indices, axis=1, inplace=True)
+
+
+
     def run_community_detection(self, seeds, n_accounts=50, n_seeds=5, result_interval=10,
                                 runtime_file=None):
         """
@@ -420,6 +460,8 @@ class CommunityDetector:
                                           result_interval, file_name=name + '_page_rank.csv')
 
         srt0 = time()
+        # remove the seeds before incrementing
+        self.remove_seeds_from_similarities(account_similarities, seeds)
         for idx in range(n_additions):
             # Adds the next most similar account to each group of seeds and updates the average distance from the community members to all other accounts
             self.increment_communities(account_similarities, seeds)
