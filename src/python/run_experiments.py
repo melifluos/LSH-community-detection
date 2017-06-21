@@ -442,9 +442,9 @@ class CommunityDetector:
         # assert n_accounts >= n_candidates, "Problem with LSH candidate generation. Number of candidates exceeds size of community"
         if n_candidates < n_accounts:
             print "not all community members are active. Will only consider ", n_candidates, ' of the ', n_accounts, ' accounts'
-            n_additions = n_candidates
+            n_additions = n_candidates - n_seeds
         else:
-            n_additions = n_accounts
+            n_additions = n_accounts - n_seeds
             # implement a new lookup
 
         # find the jaccard distance to all non-seeds averaged over the seeds
@@ -562,6 +562,7 @@ class CommunityDetector:
 
 
 if __name__ == '__main__':
+    start_time = time()
     n_seeds = 30  # The number of seeds to start with. Experimental value
     result_interval = 10  # the intervals in number of accounts to snap the recall at
     random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
@@ -584,3 +585,5 @@ if __name__ == '__main__':
         community_size = grouped.size()
         for group in grouped:
             community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
+
+    print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
