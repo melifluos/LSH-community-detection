@@ -95,7 +95,7 @@ class CommunityDetector:
                         hit_count += 1
                     if (idx + 1) % interval == 0:  # record data at this point
                         # how much of the entire set did we get
-                        total_recall = (hit_count) / float(n_members - n_seeds)
+                        total_recall = hit_count / float(n_members - n_seeds)
                         out_line.append(format(total_recall, '.4f'))
                     # stop when we have enough accounts
                     if idx == n_accounts:
@@ -428,7 +428,7 @@ class CommunityDetector:
                 print idx + 1, 'accounts added'
         sim_rank_time = time() - srt0
         # reset the used IDs after the loop
-        self.used_ids = {}
+        self.used_idx = {}
 
         if runtime_file:
             writer = csv.writer(runtime_file)
