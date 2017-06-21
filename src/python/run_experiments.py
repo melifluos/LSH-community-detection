@@ -74,6 +74,54 @@ class CommunityDetector:
         :return:
         """
         # get an array of account identifiers in similarity order for every community
+        community = seeds.keys()[0]
+        sorted_idx = account_similarities.sort_values(community, axis=1, ascending=False)
+
+        with open(self.outfolder + '/' + file_name, 'ab') as f:
+            writer = csv.writer(f)
+            for name, val in seeds.iteritems():
+                n_members = self.community_sizes[name]
+                out_line = []
+                hit_count = 0
+                total_recall = 0
+                for idx, active_idx in enumerate(sorted_idx.columns.values):
+                    account_idx = self.lsh_candidates.get_account_idx(active_idx)
+                    try:
+                        result_line = self.signatures.ix[account_idx, :]
+                    except TypeError:
+                        print account_idx, ' of type ', type(account_idx), 'caused type error'
+                        raise
+                    if (name == str(result_line['community'])) and (account_idx not in val):
+                        hit_count += 1
+                    if (idx + 1) % interval == 0:  # record data at this point
+                        # how much of the entire set did we get
+                        total_recall = hit_count / float(n_members - n_seeds)
+                        out_line.append(format(total_recall, '.4f'))
+                    # stop when we have enough accounts
+                    if (idx + 1) == n_accounts:
+                        writer.writerow(out_line)
+                        break
+                if sorted_idx.shape[1] < n_accounts:
+                    # this happens with bad communities when there are fewer LSH candidates than community members
+                    n_cols = len(xrange(interval, n_accounts, interval))
+                    for idx in range(n_cols - len(out_line)):
+                        out_line.append(format(total_recall,
+                                               '.4f'))  # recall won't improve as no more candidates
+                    writer.writerow(out_line)
+
+    def output_best_initial_averages1(self, account_similarities, seeds,
+                                      n_seeds, n_accounts, interval, file_name):
+        """
+        Extract accounts with the highest average Jaccards with the input seeds
+        :param account_similarities:
+        :param seeds:
+        :param n_seeds:
+        :param n_accounts:
+        :param interval:
+        :param file_name:
+        :return:
+        """
+        # get an array of account identifiers in similarity order for every community
         sorted_vals = np.argsort(-account_similarities.values)
         sorted_idx = pd.DataFrame(data=sorted_vals, index=account_similarities.index)
 
@@ -151,51 +199,6 @@ class CommunityDetector:
         seeds[community].append((account_idx, jacc))
         # remove this account once added
         account_similarities.drop(active_idx, axis=1, inplace=True)
-
-    # def increment_communities1(self, account_similarities, seeds):
-    #     """
-    #     Find the most similar account not already in each community and
-    #     add them to it.
-    #     :param account_similarities: A pandas dataframe of account similarities indexed by the community names. Shape
-    #     (n_communities, n_active_accounts)
-    #     :param seeds: A default dictionary of the seeds of the form {community_name:[acc_idx1, acc_idx2,...],...}
-    #     :return: None. The function alters seeds inplace.
-    #     """
-    #     # get an array of account identifiers in similarity order for every community
-    #     temp = np.argsort(-account_similarities.values)
-    #     sorted_idx = pd.DataFrame(data=temp, index=account_similarities.index)
-    #
-    #     # for each community, try the accounts in decreasing similarity order
-    #     for community in seeds.keys():
-    #         if not community in self.used_idx:
-    #             # self.used_ids[community_idx] = Set([])
-    #             self.used_idx[community] = Set([])
-    #         col_idx = 0
-    #         while True:
-    #             # get the index of the high jaccard account into the active indices
-    #             try:
-    #                 active_idx = sorted_idx.ix[community, col_idx]
-    #             except KeyError:
-    #                 print 'no accounts left to add to the community'
-    #                 break
-    #             # convert from an index into the active accounts to a account idx
-    #             account_idx = self.lsh_candidates.get_account_idx(active_idx)
-    #             # if account_id not in self.used_ids[community_idx] and account_id:
-    #             if account_idx not in self.used_idx[community] and account_idx:
-    #                 # add the new account
-    #                 # get the size of the community for the community update equation
-    #                 community_size = len(seeds[community])
-    #                 self.update_account_similarities(account_similarities, active_idx, community,
-    #                                                  community_size)
-    #                 # get the Jaccard for this new account with the community
-    #                 jacc = account_similarities.ix[community, active_idx]
-    #                 # add the new account to the community
-    #                 seeds[community].append((account_idx, jacc))
-    #                 self.used_idx[community].add(account_idx)
-    #                 # move to the next community
-    #                 break
-    #             else:  # check the next account
-    #                 col_idx += 1
 
     def get_account_similarities(self, all_signatures, test_signatures):
         """
@@ -409,8 +412,6 @@ class CommunityDetector:
 
         similarities.drop(seed_indices, axis=1, inplace=True)
 
-
-
     def run_community_detection(self, seeds, n_accounts=50, n_seeds=5, result_interval=10,
                                 runtime_file=None):
         """
@@ -434,36 +435,35 @@ class CommunityDetector:
             print 'loading lsh lookup table'
             self.load_lsh_table()
         print 'running lsh query'
-        print seeds
+
         self.lsh_candidates = LSH.run_query(seeds, self.signatures, self.lsh_table, return_query_id=True)
         # reduce the signatures matrix to only work with nearby accounts
         self.active_signatures = self.signatures.ix[self.lsh_candidates.active_indices, 1:].values
         n_candidates = len(self.active_signatures)
-        # assert n_accounts >= n_candidates, "Problem with LSH candidate generation. Number of candidates exceeds size of community"
         if n_candidates < n_accounts:
             print "not all community members are active. Will only consider ", n_candidates, ' of the ', n_accounts, ' accounts'
             n_additions = n_candidates - n_seeds
         else:
             n_additions = n_accounts - n_seeds
-            # implement a new lookup
 
         # find the jaccard distance to all non-seeds averaged over the seeds
         ast0 = time()
         account_similarities = self.calculate_initial_average_similarity(seeds)
+        # remove the seeds before incrementing
+        self.remove_seeds_from_similarities(account_similarities, seeds)
         avg_sim_time = time() - ast0
         self.output_best_initial_averages(account_similarities, seeds,
-                                          n_seeds, n_accounts, result_interval, file_name=name + '_initial_avgs.csv')
+                                          n_seeds, n_accounts - n_seeds, result_interval,
+                                          file_name=name + '_initial_avgs.csv')
         prt0 = time()
         R = self.pageRank(seeds)
         pr_time = time() - prt0
-        self.output_best_initial_averages(R, seeds, n_seeds, n_accounts,
+        self.output_best_initial_averages(R, seeds, n_seeds, n_accounts - n_seeds,
                                           result_interval, file_name=name + '_page_rank.csv')
-
         srt0 = time()
-        # remove the seeds before incrementing
-        self.remove_seeds_from_similarities(account_similarities, seeds)
         for idx in range(n_additions):
-            # Adds the next most similar account to each group of seeds and updates the average distance from the community members to all other accounts
+            # Adds the next most similar account to each group of seeds and updates the
+            # average distance from the community members to all other accounts
             self.increment_communities(account_similarities, seeds)
             # record the recall every
             if (idx + 1) % 10 == 0:
@@ -507,19 +507,19 @@ class CommunityDetector:
         minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
         with open(minrank_path, 'wb') as f:
             writer = csv.writer(f)
-            cols = xrange(result_interval, n_accounts, result_interval)
+            cols = xrange(result_interval, n_accounts - n_seeds, result_interval)
             writer.writerow(cols)
 
         initial_averages_path = self.outfolder + "/" + name.replace(" ", "_") + '_initial_avgs.csv'
         with open(initial_averages_path, 'wb') as f:
             writer = csv.writer(f)
-            cols = xrange(result_interval, n_accounts, result_interval)
+            cols = xrange(result_interval, n_accounts - n_seeds, result_interval)
             writer.writerow(cols)
 
         page_rank_path = self.outfolder + "/" + name.replace(" ", "_") + '_page_rank.csv'
         with open(page_rank_path, 'wb') as f:
             writer = csv.writer(f)
-            cols = xrange(result_interval, n_accounts, result_interval)
+            cols = xrange(result_interval, n_accounts - n_seeds, result_interval)
             writer.writerow(cols)
 
         start_time = time()
