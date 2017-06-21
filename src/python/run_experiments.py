@@ -438,7 +438,7 @@ class CommunityDetector:
         :param n_seeds: The number of accounts to return
         :return A python dictionary of the form community_name: [seed indices]]
         """
-        rand.seed(rdm_seed)
+        np.random.seed(rdm_seed)
         community_name = group[0]
         indices = group[1].index.values
         sample = np.random.choice(indices, n_seeds, replace=False)

@@ -102,7 +102,8 @@ def make_plot(folder, community, axarr=None, pos=None, n_points=20, show_legend=
             index))  # don't want to plot all of the indices as the error bars look cluttered
         ax.errorbar(index[plot_indices], mean[plot_indices], std_error[plot_indices], color=COLOURS[idx], label=method,
                     alpha=0.5)
-        ax.set_title(folder.rsplit('/', 1)[-1], fontsize=10)
+        # ax.set_title(folder.rsplit('/', 1)[-1], fontsize=10)
+        ax.set_title(community, fontsize=10)
     writer.writerow([community] + area_under_curve)
     if show_legend:
         legend = ax.legend(loc='upper center')
