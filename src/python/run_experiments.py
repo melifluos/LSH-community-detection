@@ -289,9 +289,9 @@ class CommunityDetector:
             for dummy_i in range(0, (n_none_seeds - len(minrank_result)) // interval):
                 recall.append(last_val)  # recall can't get any higher as LSH didn't return any more results
 
-            with open(minrank_path, 'ab') as f:
-                writer = csv.writer(f)
-                writer.writerow(recall)
+        with open(minrank_path, 'ab') as f:
+            writer = csv.writer(f)
+            writer.writerow(recall)
 
 
     def calculate_recall1(self, communities, n_seeds, n_accounts,
