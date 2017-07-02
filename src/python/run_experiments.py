@@ -234,7 +234,10 @@ class CommunityDetector:
         """
         truth = self.signatures.community
         community = communities.keys()[0]
-        name = community.replace(" ", "_")
+        try:
+            name = community.replace(" ", "_")
+        except AttributeError:
+            name = str(community)
         pairs = communities.values()[0]
         # add jaccard of 1.0 to the seeds and look up truth communities of accounts
         full_pairs = [(truth[val[0]], val[1]) if hasattr(val, '__iter__') else (truth[val], 1.0) for val in pairs]
@@ -271,7 +274,10 @@ class CommunityDetector:
         :return:
         """
         name = communities.index.name
-        minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        try:
+            minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        except AttributeError:
+            minrank_path = self.outfolder + "/" + str(name) + '_minrank.csv'
         minrank_result = communities.detected_community.values
         # remove seeds
         minrank_result = minrank_result[n_seeds:]
@@ -406,7 +412,10 @@ class CommunityDetector:
         """
         start_time = time()
         community = seeds.keys()[0]
-        name = community.replace(" ", "_")
+        try:
+            name = community.replace(" ", "_")
+        except AttributeError:
+            name = str(community)
 
         # Use the locality sensitive hashing table to conduct an initial nearest neighbours search
         if not isinstance(self.lsh_table, list):
@@ -482,19 +491,28 @@ class CommunityDetector:
         n_accounts, n_hashes = hashes.shape
         n_hashes -= 1  # don't count the community name column
 
-        minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        try:
+            minrank_path = self.outfolder + "/" + name.replace(" ", "_") + '_minrank.csv'
+        except AttributeError:
+            minrank_path = self.outfolder + "/" + str(name) + '_minrank.csv'
         with open(minrank_path, 'wb') as f:
             writer = csv.writer(f)
             cols = xrange(result_interval, n_accounts - n_seeds, result_interval)
             writer.writerow(cols)
 
-        initial_averages_path = self.outfolder + "/" + name.replace(" ", "_") + '_initial_avgs.csv'
+        try:
+            initial_averages_path = self.outfolder + "/" + name.replace(" ", "_") + '_initial_avgs.csv'
+        except AttributeError:
+            initial_averages_path = self.outfolder + "/" + str(name) + '_initial_avgs.csv'
         with open(initial_averages_path, 'wb') as f:
             writer = csv.writer(f)
             cols = xrange(result_interval, n_accounts - n_seeds, result_interval)
             writer.writerow(cols)
 
-        page_rank_path = self.outfolder + "/" + name.replace(" ", "_") + '_page_rank.csv'
+        try:
+            page_rank_path = self.outfolder + "/" + name.replace(" ", "_") + '_page_rank.csv'
+        except AttributeError:
+            page_rank_path = self.outfolder + "/" + str(name) + '_page_rank.csv'
         with open(page_rank_path, 'wb') as f:
             writer = csv.writer(f)
             cols = xrange(result_interval, n_accounts - n_seeds, result_interval)
@@ -541,15 +559,17 @@ class CommunityDetector:
 
 if __name__ == '__main__':
     start_time = time()
-    n_seeds = 30  # The number of seeds to start with. Experimental value
+    n_seeds = 5  # The number of seeds to start with. Experimental value
     result_interval = 10  # the intervals in number of accounts to snap the recall at
     random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
+    min_community_size = 10
 
     # random_seeds = [451235]
 
-    inpath = '../../local_resources/twitter_data.csv'
+    inpath = '../../local_resources/email_data/signatures.txt'
     outfolder = '../../results'
-    lsh_path = '../../results/hash_table.pkl'
+    # lsh_path = '../../results/hash_table.pkl'
+    lsh_path = '../../local_resources/email_data/hash_table.pkl'
 
     data = pd.read_csv(inpath, index_col=0)
     data.index.name = 'community'
@@ -562,6 +582,7 @@ if __name__ == '__main__':
         grouped = data.groupby('community')
         community_size = grouped.size()
         for group in grouped:
-            community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
+            if group[1].shape[0] > min_community_size:
+                community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time

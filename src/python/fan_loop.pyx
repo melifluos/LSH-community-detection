@@ -1,4 +1,4 @@
-# encoding: utf-8
+ # encoding: utf-8
 # filename: fan_loop.pyx
 cimport cython
 from libc.stdlib cimport malloc, free
@@ -13,7 +13,8 @@ def calculate_minhashes(unsigned int[:, ::1] edges, unsigned int[:, ::1] signatu
     Calculate the star min hash values by generating hash values for each fan-star combination
     and keeping the minimum values.
     :param edges:
-    :param signatures:
+    :param signatures: A numpy array of shape (num_stars, num_hashes) and dtype np.uint32 intialised to all be the maximum
+    value of a 32 bit unsigned integer
     :param a:
     :param b:
     :param max_fan_star:

@@ -225,6 +225,8 @@ if __name__ == '__main__':
     # outpath = args.outpath[0]
     inpath = '../../local_resources/twitter_data.csv'
     outpath = '../../results/community_analysis.csv'
+    inpath = '../../local_resources/email_data/signatures.txt'
+    outpath = '../../local_resources/email_data/hash_table.pkl'
     data = pd.read_csv(inpath, index_col=0)
     signatures = data.values
-    build_LSH_table(signatures, outpath)
+    build_LSH_table(signatures, outpath, n_bands=50)
