@@ -49,7 +49,7 @@ def read_recall(folder, community, method):
     index = index / max(index)
     mean = df.mean(axis=0)
     std_error = df.std(axis=0) / sqrt(rows)
-    return index, mean, std_error
+    return index.values, mean.values, std_error.values
 
 
 def uniform_sample(n, m):
@@ -102,10 +102,11 @@ def make_plot(folder, community, axarr=None, pos=None, n_points=20, show_legend=
         area_under_curve.append(auc(index, mean))
         plot_indices = uniform_sample(n_points, len(
             index))  # don't want to plot all of the indices as the error bars look cluttered
-        ax.errorbar(index[plot_indices], mean[plot_indices], std_error[plot_indices], color=COLOURS[idx], label=method,
+        ax.errorbar(np.insert(index[plot_indices], 0, 0), np.insert(mean[plot_indices], 0, 0),
+                    np.insert(std_error[plot_indices], 0, 0), color=COLOURS[idx], label=method,
                     alpha=0.5)
         # ax.set_title(folder.rsplit('/', 1)[-1], fontsize=10)
-        ax.set_title(community, fontsize=10)
+        ax.set_title(community, fontsize=8, y=0.95)
     auc_file_writer.writerow([community] + area_under_curve)
     if show_legend:
         legend = ax.legend(loc='upper center')
