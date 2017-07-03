@@ -38,7 +38,10 @@ def read_recall(folder, community, method):
     :param method: String. Name of the method
     :return:
     """
-    filename = community.replace(" ", "_") + "_" + method + ".csv"
+    try:
+        filename = community.replace(" ", "_") + "_" + method + ".csv"
+    except AttributeError:
+        filename = str(community) + "_" + method + ".csv"
     data_path = os.path.join(folder, filename)
     df = pd.read_csv(data_path)
     rows, cols = df.shape
@@ -103,7 +106,7 @@ def make_plot(folder, community, axarr=None, pos=None, n_points=20, show_legend=
                     alpha=0.5)
         # ax.set_title(folder.rsplit('/', 1)[-1], fontsize=10)
         ax.set_title(community, fontsize=10)
-    writer.writerow([community] + area_under_curve)
+    auc_file_writer.writerow([community] + area_under_curve)
     if show_legend:
         legend = ax.legend(loc='upper center')
         for label in legend.get_texts():
@@ -118,26 +121,41 @@ def make_plot(folder, community, axarr=None, pos=None, n_points=20, show_legend=
     return index, mean, std_error
 
 
-if __name__ == '__main__':
-    plt.close('all')
-    inpath = '../../local_resources/twitter_data.csv'
-    outfolder = '../../results'
+def get_communities_above_threshold(data, threshold_size):
+    """
+    return communities in data that occure more than threshold_size. Communities are encoded in the index
+    :param data: A pandas dataframe with communities as the index
+    :param threshold_size:
+    :return:
+    """
+    index_counts = data.index.value_counts()
+    count_list = index_counts[index_counts > threshold_size].index.values.tolist()
+    return count_list
 
-    data = pd.read_csv(inpath, index_col=0)
+
+def plot_recall(data, community_folder, out_folder, threshold_size):
+    """
+    generate the experimental recall curves for pagerank, minrank and initial_avg
+    :param data: A pandas dataframe indexed by community label
+    :param community_folder: the location of the results
+    :param out_folder: the location to write the graphs to
+    :param threshold_size: the minimum number of members a community must have to plot
+    :return:
+    """
     data.index.name = 'community'
-
-    communities = data.index.unique().values
-    community_folder = '../results'  # Where to get the data for the plots
+    communities = get_communities_above_threshold(data, threshold_size)
     n_communities = len(communities)
+    print n_communities, ' communities containing more then ', threshold_size, ' members'
     # no longer used
     shape = int(ceil(sqrt(n_communities)))
-    n_plot_rows = 4
-    n_plot_cols = 4
+    n_plot_rows = 5
+    n_plot_cols = 3
     fig, axarr = plt.subplots(n_plot_rows, n_plot_cols, sharex='col', sharey='row')
     ypos = -1
     xpos = 0
-    with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv',
-              'wb') as f:
+    out_path = out_folder + '/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv'
+    plot_path = out_folder + '/recall_vs_range' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.pdf'
+    with open(out_path, 'wb') as f:
         writer = csv.writer(f)
         writer.writerow(['tags'] + METHODS)
     for idx, community in enumerate(communities):
@@ -145,16 +163,24 @@ if __name__ == '__main__':
         xpos = int(idx % n_plot_cols)
         if xpos == 0:
             ypos += 1
-        with open('../../local_results/area_under_curve' + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + '.csv',
-                  'ab') as f:
+        with open(out_path, 'ab') as f:
             writer = csv.writer(f)
-            make_plot(outfolder, community, axarr, (ypos, xpos), auc_file_writer=writer)
+            make_plot(community_folder, community, axarr, (ypos, xpos), auc_file_writer=writer)
 
     for row in axarr:
         for ax in row:
             ax.set_ylim(bottom=0.)
 
     # fig.tight_layout(pad=0.1)
-    plt.savefig(
-        "../../local_results/recall_figs/recall_vs_range" + str(datetime.now().strftime("%Y%m%d-%H%M%S")) + ".pdf")
+    plt.savefig(plot_path)
     plt.close('all')
+
+
+if __name__ == '__main__':
+    plt.close('all')
+    inpath = '../../local_resources/email_data/signatures.txt'
+    out_folder = '../../results/email'
+    threshold = 25
+    data = pd.read_csv(inpath, index_col=0)
+    data.index.name = 'community'
+    plot_recall(data, out_folder, out_folder, threshold)

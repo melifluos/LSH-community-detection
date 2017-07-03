@@ -11,6 +11,7 @@ import cPickle as pickle
 from sets import Set
 from time import gmtime, strftime, time
 from scipy.spatial.distance import pdist, squareform
+from plot_recall import plot_recall
 
 
 class CommunityDetector:
@@ -90,7 +91,7 @@ class CommunityDetector:
                     except TypeError:
                         print account_idx, ' of type ', type(account_idx), 'caused type error'
                         raise
-                    if (name == str(result_line['community'])) and (account_idx not in val):
+                    if (str(name) == str(result_line['community'])) and (account_idx not in val):
                         hit_count += 1
                     if (idx + 1) % interval == 0:  # record data at this point
                         # how much of the entire set did we get
@@ -560,20 +561,19 @@ class CommunityDetector:
 if __name__ == '__main__':
     start_time = time()
     n_seeds = 5  # The number of seeds to start with. Experimental value
-    result_interval = 10  # the intervals in number of accounts to snap the recall at
+    result_interval = 5  # the intervals in number of accounts to snap the recall at
     random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
-    min_community_size = 10
-
     # random_seeds = [451235]
 
     inpath = '../../local_resources/email_data/signatures.txt'
-    outfolder = '../../results'
+    # outfolder = '../../results'
     # lsh_path = '../../results/hash_table.pkl'
+    outfolder = '../../results/email'
     lsh_path = '../../local_resources/email_data/hash_table.pkl'
 
-    data = pd.read_csv(inpath, index_col=0)
-    data.index.name = 'community'
-    data = data.reset_index()
+    raw_data = pd.read_csv(inpath, index_col=0)
+    raw_data.index.name = 'community'
+    data = raw_data.reset_index()
     community_detector = CommunityDetector(data, outfolder, lsh_path=lsh_path)
     with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'wb') as runtime_file:
         writer = csv.writer(runtime_file)
@@ -582,7 +582,9 @@ if __name__ == '__main__':
         grouped = data.groupby('community')
         community_size = grouped.size()
         for group in grouped:
-            if group[1].shape[0] > min_community_size:
+            if group[1].shape[0] > n_seeds + result_interval:
                 community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
+    print 'plotting recall curves'
+    plot_recall(raw_data, outfolder, outfolder, 25)
