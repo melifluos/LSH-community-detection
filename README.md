@@ -49,6 +49,6 @@ The LSH table and the minhashes are written to the resources folder. The plots a
 
 ###  Citation
 
-If you make use of this code please cite
+If you make use of this code please cite:
 
 Chamberlain BP, Levy-Kramer J, Humby C, Deisenroth MP. Real-Time Community Detection in Large Social Networks on a Laptop. arXiv preprint arXiv:1601.03958. 2016 Jan 15.
