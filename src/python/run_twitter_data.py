@@ -1,6 +1,6 @@
 """
-A script to run the end-to-end process for the public email data. Added for reproducibility - the code is not
-to be executed end-to-end in production
+A script to run the Twitter data from the experimental evaluation of https://arxiv.org/abs/1601.03958.
+Added for reproducibility - the code is not to be executed end-to-end in production
 """
 
 from generate_hashes import generate_hashes

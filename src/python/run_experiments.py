@@ -12,6 +12,7 @@ from sets import Set
 from time import gmtime, strftime, time
 from scipy.spatial.distance import pdist, squareform
 from plot_recall import plot_recall
+import argparse
 
 
 class CommunityDetector:
@@ -300,7 +301,6 @@ class CommunityDetector:
             writer = csv.writer(f)
             writer.writerow(recall)
 
-
     def calculate_recall1(self, communities, n_seeds, n_accounts,
                           interval=None):
         """
@@ -564,13 +564,7 @@ def run_email_experiments(sig_path, outfolder, lsh_path):
     result_interval = 5  # the intervals in number of accounts to snap the recall at
     random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
 
-    inpath = '../../local_resources/email_data/signatures.txt'
-    # outfolder = '../../results'
-    # lsh_path = '../../results/hash_table.pkl'
-    outfolder = '../../results/email'
-    lsh_path = '../../local_resources/email_data/hash_table.pkl'
-
-    raw_data = pd.read_csv(inpath, index_col=0)
+    raw_data = pd.read_csv(sig_path, index_col=0)
     raw_data.index.name = 'community'
     data = raw_data.reset_index()
     community_detector = CommunityDetector(data, outfolder, lsh_path=lsh_path)
@@ -585,36 +579,49 @@ def run_email_experiments(sig_path, outfolder, lsh_path):
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
     print 'plotting recall curves'
-    plot_recall(raw_data, outfolder, outfolder, 25)
+    plot_recall(raw_data, outfolder, outfolder, threshold_size=25)
+
+
+def run_twitter_experiments(sig_path, outfolder, lsh_path):
+    start_time = time()
+    n_seeds = 30  # The number of seeds to start with. Experimental value
+    result_interval = 10  # the intervals in number of accounts to snap the recall at
+    random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
+
+    raw_data = pd.read_csv(sig_path, index_col=0)
+    raw_data.index.name = 'community'
+    data = raw_data.reset_index()
+    community_detector = CommunityDetector(data, outfolder, lsh_path=lsh_path)
+    with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'wb') as runtime_file:
+        writer = csv.writer(runtime_file)
+        writer.writerow(['community', 'method', 'runtime'])
+    with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'ab') as runtime_file:
+        grouped = data.groupby('community')
+        for group in grouped:
+            if group[1].shape[0] > n_seeds + result_interval:
+                community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
+
+    print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
+    print 'plotting recall curves'
+    plot_recall(raw_data, outfolder, outfolder)
 
 
 if __name__ == '__main__':
-    start_time = time()
-    n_seeds = 5  # The number of seeds to start with. Experimental value
-    result_interval = 5  # the intervals in number of accounts to snap the recall at
-    random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
-    # random_seeds = [451235]
+    parser = argparse.ArgumentParser(description='Generate community features',
+                                     epilog='features are based just on the communities and not all of Twitter')
+    parser.add_argument(
+        'sig_path', type=str,
+        nargs='+', default='../../local_resources/twitter_data.csv', help='the location of the minhash file')
+    parser.add_argument(
+        'lsh_path', type=str,
+        nargs='+', default='../../local_resources/twitter_hash_table.pkl', help='the location of the LSH file')
+    parser.add_argument(
+        'outfolder', type=str,
+        nargs='+', default='../../results', help='the folder to write data to')
 
-    inpath = '../../local_resources/email_data/signatures.txt'
-    # outfolder = '../../results'
-    # lsh_path = '../../results/hash_table.pkl'
-    outfolder = '../../results/email'
-    lsh_path = '../../local_resources/email_data/hash_table.pkl'
+    args = parser.parse_args()
 
-    raw_data = pd.read_csv(inpath, index_col=0)
-    raw_data.index.name = 'community'
-    data = raw_data.reset_index()
-    community_detector = CommunityDetector(data, outfolder, lsh_path=lsh_path)
-    with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'wb') as runtime_file:
-        writer = csv.writer(runtime_file)
-        writer.writerow(['community', 'method', 'runtime'])
-    with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'ab') as runtime_file:
-        grouped = data.groupby('community')
-        community_size = grouped.size()
-        for group in grouped:
-            if group[1].shape[0] > n_seeds + result_interval:
-                community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
-
-    print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
-    print 'plotting recall curves'
-    plot_recall(raw_data, outfolder, outfolder, 25)
+    sig_path = args.sig_path[0]
+    lsh_path = args.lsh_path[0]
+    outfolder = args.outfolder[0]
+    run_twitter_experiments(sig_path, outfolder, lsh_path)
