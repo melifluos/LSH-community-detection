@@ -23,10 +23,6 @@ def generate_hashes(x_path, y_path, out_path, num_hashes):
     # Set the signatures to the maximum 32bit unsigned integer value so that any value lower will replace it.
     signatures[:] = np.iinfo(np.uint32).max
     # this writes to the signatures array
-    print hash_a.shape
-    print hash_b.shape
-    print signatures.dtype
-    print edge_arr.dtype
     hash_a = np.expand_dims(hash_a, axis=0)
     hash_b = np.expand_dims(hash_b, axis=0)
     calculate_minhashes(edge_arr, signatures, hash_a, hash_b, num_hashes)
@@ -68,7 +64,6 @@ def multiply_shift_params(num_hashes=1000):
 
 
 if __name__ == '__main__':
-    # LSH.LSHCandidates([1, 2])
     x_path = '../../local_resources/email_data/email-Eu-core.txt'
     y_path = '../../local_resources/email_data/labels.txt'
     out_path = '../../local_resources/email_data/signatures.txt'
