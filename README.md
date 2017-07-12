@@ -23,7 +23,7 @@ Assuming you are in the directory of the source code and have cloned this reposi
 
 To build the LSH table
 
-python LSH.py minhash_data_path LSH_path
+python LSH.py minhash_data_path LSH_output_path
 
 To generate metrics for the ground truth communities
 
@@ -31,7 +31,7 @@ python assess_community_quality.py minhash_data_path outpath
 
 To run experimentation
 
-python run_experimentation.py minhash_data_path LSH_path outpath
+python run_experimentation.py minhash_data_path LSH_outputpath outpath
 
 
 ## Replicating the end-to-end process with the public email data set from SNAP https://snap.stanford.edu/data/email-EuAll.html
