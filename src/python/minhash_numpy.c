@@ -781,7 +781,7 @@ typedef __pyx_t_5numpy_uint_t __pyx_t_13minhash_numpy_DTYPE_t;
  * ctypedef np.uint_t DTYPE_t
  * ctypedef np.uint32_t DTYPE32_t             # <<<<<<<<<<<<<<
  * 
- * cpdef process_fan(fan_stars, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
+ * cpdef process_outlinks(in_links, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
  */
 typedef __pyx_t_5numpy_uint32_t __pyx_t_13minhash_numpy_DTYPE32_t;
 #if CYTHON_CCOMPLEX
@@ -1325,12 +1325,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value)
 
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
-static int __Pyx_Print(PyObject*, PyObject *, int);
-#if CYTHON_COMPILING_IN_PYPY || PY_MAJOR_VERSION >= 3
-static PyObject* __pyx_print = 0;
-static PyObject* __pyx_print_kwargs = 0;
-#endif
-
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     #define __Pyx_CREAL(z) ((z).real())
@@ -1523,7 +1517,7 @@ static PyObject *strided = 0;
 static PyObject *indirect = 0;
 static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
-static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *, PyObject *, PyArrayObject *, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_13minhash_numpy_process_outlinks(PyObject *, PyObject *, PyArrayObject *, int __pyx_skip_dispatch); /*proto*/
 static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long, PyArrayObject *, PyArrayObject *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice, PyArrayObject *, PyArrayObject *, PyArrayObject *, int, int __pyx_skip_dispatch); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
@@ -1595,11 +1589,9 @@ static char __pyx_k_Zf[] = "Zf";
 static char __pyx_k_Zg[] = "Zg";
 static char __pyx_k_id[] = "id";
 static char __pyx_k_np[] = "np";
-static char __pyx_k_end[] = "end";
 static char __pyx_k_mod[] = "mod";
 static char __pyx_k_obj[] = "obj";
 static char __pyx_k_base[] = "base";
-static char __pyx_k_file[] = "file";
 static char __pyx_k_main[] = "__main__";
 static char __pyx_k_mode[] = "mode";
 static char __pyx_k_name[] = "name";
@@ -1617,7 +1609,6 @@ static char __pyx_k_edges[] = "edges";
 static char __pyx_k_error[] = "error";
 static char __pyx_k_flags[] = "flags";
 static char __pyx_k_numpy[] = "numpy";
-static char __pyx_k_print[] = "print";
 static char __pyx_k_range[] = "range";
 static char __pyx_k_shape[] = "shape";
 static char __pyx_k_start[] = "start";
@@ -1635,14 +1626,13 @@ static char __pyx_k_fortran[] = "fortran";
 static char __pyx_k_memview[] = "memview";
 static char __pyx_k_minimum[] = "minimum";
 static char __pyx_k_Ellipsis[] = "Ellipsis";
+static char __pyx_k_in_links[] = "in_links";
 static char __pyx_k_itemsize[] = "itemsize";
 static char __pyx_k_TypeError[] = "TypeError";
 static char __pyx_k_enumerate[] = "enumerate";
-static char __pyx_k_fan_stars[] = "fan_stars";
 static char __pyx_k_hash_vals[] = "hash_vals";
 static char __pyx_k_IndexError[] = "IndexError";
 static char __pyx_k_ValueError[] = "ValueError";
-static char __pyx_k_edge_count[] = "edge count";
 static char __pyx_k_num_hashes[] = "num_hashes";
 static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static char __pyx_k_signatures[] = "signatures";
@@ -1714,15 +1704,11 @@ static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_dtype;
 static PyObject *__pyx_n_s_dtype_is_object;
-static PyObject *__pyx_kp_s_edge_count;
 static PyObject *__pyx_n_s_edges;
 static PyObject *__pyx_n_s_encode;
-static PyObject *__pyx_n_s_end;
 static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_error;
 static PyObject *__pyx_n_s_fan_id;
-static PyObject *__pyx_n_s_fan_stars;
-static PyObject *__pyx_n_s_file;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
@@ -1733,6 +1719,7 @@ static PyObject *__pyx_n_s_hash_b;
 static PyObject *__pyx_n_s_hash_vals;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_import;
+static PyObject *__pyx_n_s_in_links;
 static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
 static PyObject *__pyx_n_s_main;
@@ -1750,7 +1737,6 @@ static PyObject *__pyx_n_s_num_hashes;
 static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_pack;
-static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pyx_getbuffer;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_range;
@@ -1771,7 +1757,7 @@ static PyObject *__pyx_kp_s_unable_to_allocate_shape_and_str;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_zeros;
-static PyObject *__pyx_pf_13minhash_numpy_process_fan(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fan_stars, PyObject *__pyx_v_hash_vals, PyArrayObject *__pyx_v_signatures); /* proto */
+static PyObject *__pyx_pf_13minhash_numpy_process_outlinks(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_in_links, PyObject *__pyx_v_hash_vals, PyArrayObject *__pyx_v_signatures); /* proto */
 static PyObject *__pyx_pf_13minhash_numpy_2hash_function(CYTHON_UNUSED PyObject *__pyx_self, unsigned long __pyx_v_fan_id, PyArrayObject *__pyx_v_hash_a, PyArrayObject *__pyx_v_hash_b); /* proto */
 static PyObject *__pyx_pf_13minhash_numpy_4calculate_minhashes(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_edges, PyArrayObject *__pyx_v_signatures, PyArrayObject *__pyx_v_hash_a, PyArrayObject *__pyx_v_hash_b, int __pyx_v_num_hashes); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
@@ -1845,14 +1831,14 @@ static PyObject *__pyx_tuple__26;
 /* "minhash_numpy.pyx":11
  * ctypedef np.uint32_t DTYPE32_t
  * 
- * cpdef process_fan(fan_stars, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):             # <<<<<<<<<<<<<<
- *     star_signatures_fans = signatures[fan_stars, :]
- *     star_signatures_fans = np.minimum(star_signatures_fans,
+ * cpdef process_outlinks(in_links, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):             # <<<<<<<<<<<<<<
+ *     curr_sigs = signatures[in_links, :]
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
  */
 
-static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *__pyx_v_fan_stars, PyObject *__pyx_v_hash_vals, PyArrayObject *__pyx_v_signatures, CYTHON_UNUSED int __pyx_skip_dispatch) {
-  PyObject *__pyx_v_star_signatures_fans = NULL;
+static PyObject *__pyx_pw_13minhash_numpy_1process_outlinks(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_13minhash_numpy_process_outlinks(PyObject *__pyx_v_in_links, PyObject *__pyx_v_hash_vals, PyArrayObject *__pyx_v_signatures, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  PyObject *__pyx_v_curr_sigs = NULL;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_signatures;
   __Pyx_Buffer __pyx_pybuffer_signatures;
   PyObject *__pyx_r = NULL;
@@ -1865,7 +1851,7 @@ static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *__pyx_v_fan_stars
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("process_fan", 0);
+  __Pyx_RefNannySetupContext("process_outlinks", 0);
   __pyx_pybuffer_signatures.pybuffer.buf = NULL;
   __pyx_pybuffer_signatures.refcount = 0;
   __pyx_pybuffernd_signatures.data = NULL;
@@ -1878,45 +1864,37 @@ static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *__pyx_v_fan_stars
 
   /* "minhash_numpy.pyx":12
  * 
- * cpdef process_fan(fan_stars, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
- *     star_signatures_fans = signatures[fan_stars, :]             # <<<<<<<<<<<<<<
- *     star_signatures_fans = np.minimum(star_signatures_fans,
- *                                       hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
+ * cpdef process_outlinks(in_links, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
+ *     curr_sigs = signatures[in_links, :]             # <<<<<<<<<<<<<<
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
+ *     signatures[in_links, :] = curr_sigs
  */
   __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 12; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_INCREF(__pyx_v_fan_stars);
-  __Pyx_GIVEREF(__pyx_v_fan_stars);
-  PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_fan_stars);
+  __Pyx_INCREF(__pyx_v_in_links);
+  __Pyx_GIVEREF(__pyx_v_in_links);
+  PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_in_links);
   __Pyx_INCREF(__pyx_slice_);
   __Pyx_GIVEREF(__pyx_slice_);
   PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_slice_);
   __pyx_t_2 = PyObject_GetItem(((PyObject *)__pyx_v_signatures), __pyx_t_1); if (unlikely(__pyx_t_2 == NULL)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 12; __pyx_clineno = __LINE__; goto __pyx_L1_error;};
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_star_signatures_fans = __pyx_t_2;
+  __pyx_v_curr_sigs = __pyx_t_2;
   __pyx_t_2 = 0;
 
   /* "minhash_numpy.pyx":13
- * cpdef process_fan(fan_stars, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
- *     star_signatures_fans = signatures[fan_stars, :]
- *     star_signatures_fans = np.minimum(star_signatures_fans,             # <<<<<<<<<<<<<<
- *                                       hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
- *     signatures[fan_stars, :] = star_signatures_fans
+ * cpdef process_outlinks(in_links, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
+ *     curr_sigs = signatures[in_links, :]
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise             # <<<<<<<<<<<<<<
+ *     signatures[in_links, :] = curr_sigs
+ * 
  */
   __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_minimum); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 13; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-
-  /* "minhash_numpy.pyx":14
- *     star_signatures_fans = signatures[fan_stars, :]
- *     star_signatures_fans = np.minimum(star_signatures_fans,
- *                                       hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise             # <<<<<<<<<<<<<<
- *     signatures[fan_stars, :] = star_signatures_fans
- * 
- */
   __pyx_t_1 = NULL;
   __pyx_t_4 = 0;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -1934,9 +1912,9 @@ static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *__pyx_v_fan_stars
   if (__pyx_t_1) {
     __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1); __pyx_t_1 = NULL;
   }
-  __Pyx_INCREF(__pyx_v_star_signatures_fans);
-  __Pyx_GIVEREF(__pyx_v_star_signatures_fans);
-  PyTuple_SET_ITEM(__pyx_t_5, 0+__pyx_t_4, __pyx_v_star_signatures_fans);
+  __Pyx_INCREF(__pyx_v_curr_sigs);
+  __Pyx_GIVEREF(__pyx_v_curr_sigs);
+  PyTuple_SET_ITEM(__pyx_t_5, 0+__pyx_t_4, __pyx_v_curr_sigs);
   __Pyx_INCREF(__pyx_v_hash_vals);
   __Pyx_GIVEREF(__pyx_v_hash_vals);
   PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_4, __pyx_v_hash_vals);
@@ -1944,33 +1922,33 @@ static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *__pyx_v_fan_stars
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF_SET(__pyx_v_star_signatures_fans, __pyx_t_2);
+  __Pyx_DECREF_SET(__pyx_v_curr_sigs, __pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "minhash_numpy.pyx":15
- *     star_signatures_fans = np.minimum(star_signatures_fans,
- *                                       hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
- *     signatures[fan_stars, :] = star_signatures_fans             # <<<<<<<<<<<<<<
+  /* "minhash_numpy.pyx":14
+ *     curr_sigs = signatures[in_links, :]
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
+ *     signatures[in_links, :] = curr_sigs             # <<<<<<<<<<<<<<
  * 
  * cpdef np.ndarray hash_function(unsigned long fan_id, np.ndarray[np.uint_t, ndim=2] hash_a, np.ndarray[np.uint_t, ndim=2] hash_b):
  */
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_INCREF(__pyx_v_fan_stars);
-  __Pyx_GIVEREF(__pyx_v_fan_stars);
-  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_fan_stars);
+  __Pyx_INCREF(__pyx_v_in_links);
+  __Pyx_GIVEREF(__pyx_v_in_links);
+  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_v_in_links);
   __Pyx_INCREF(__pyx_slice__2);
   __Pyx_GIVEREF(__pyx_slice__2);
   PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_slice__2);
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_signatures), __pyx_t_2, __pyx_v_star_signatures_fans) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_signatures), __pyx_t_2, __pyx_v_curr_sigs) < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "minhash_numpy.pyx":11
  * ctypedef np.uint32_t DTYPE32_t
  * 
- * cpdef process_fan(fan_stars, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):             # <<<<<<<<<<<<<<
- *     star_signatures_fans = signatures[fan_stars, :]
- *     star_signatures_fans = np.minimum(star_signatures_fans,
+ * cpdef process_outlinks(in_links, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):             # <<<<<<<<<<<<<<
+ *     curr_sigs = signatures[in_links, :]
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
  */
 
   /* function exit code */
@@ -1985,22 +1963,22 @@ static PyObject *__pyx_f_13minhash_numpy_process_fan(PyObject *__pyx_v_fan_stars
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("minhash_numpy.process_fan", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("minhash_numpy.process_outlinks", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   goto __pyx_L2;
   __pyx_L0:;
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer);
   __pyx_L2:;
-  __Pyx_XDECREF(__pyx_v_star_signatures_fans);
+  __Pyx_XDECREF(__pyx_v_curr_sigs);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  PyObject *__pyx_v_fan_stars = 0;
+static PyObject *__pyx_pw_13minhash_numpy_1process_outlinks(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_13minhash_numpy_1process_outlinks(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyObject *__pyx_v_in_links = 0;
   PyObject *__pyx_v_hash_vals = 0;
   PyArrayObject *__pyx_v_signatures = 0;
   int __pyx_lineno = 0;
@@ -2008,9 +1986,9 @@ static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyO
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("process_fan (wrapper)", 0);
+  __Pyx_RefNannySetupContext("process_outlinks (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fan_stars,&__pyx_n_s_hash_vals,&__pyx_n_s_signatures,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_in_links,&__pyx_n_s_hash_vals,&__pyx_n_s_signatures,0};
     PyObject* values[3] = {0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
@@ -2025,21 +2003,21 @@ static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyO
       kw_args = PyDict_Size(__pyx_kwds);
       switch (pos_args) {
         case  0:
-        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_fan_stars)) != 0)) kw_args--;
+        if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_in_links)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_hash_vals)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("process_fan", 1, 3, 3, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("process_outlinks", 1, 3, 3, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_signatures)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("process_fan", 1, 3, 3, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("process_outlinks", 1, 3, 3, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "process_fan") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "process_outlinks") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2048,20 +2026,20 @@ static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyO
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_fan_stars = values[0];
+    __pyx_v_in_links = values[0];
     __pyx_v_hash_vals = values[1];
     __pyx_v_signatures = ((PyArrayObject *)values[2]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("process_fan", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("process_outlinks", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
-  __Pyx_AddTraceback("minhash_numpy.process_fan", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("minhash_numpy.process_outlinks", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_signatures), __pyx_ptype_5numpy_ndarray, 1, "signatures", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_13minhash_numpy_process_fan(__pyx_self, __pyx_v_fan_stars, __pyx_v_hash_vals, __pyx_v_signatures);
+  __pyx_r = __pyx_pf_13minhash_numpy_process_outlinks(__pyx_self, __pyx_v_in_links, __pyx_v_hash_vals, __pyx_v_signatures);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2072,7 +2050,7 @@ static PyObject *__pyx_pw_13minhash_numpy_1process_fan(PyObject *__pyx_self, PyO
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_13minhash_numpy_process_fan(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_fan_stars, PyObject *__pyx_v_hash_vals, PyArrayObject *__pyx_v_signatures) {
+static PyObject *__pyx_pf_13minhash_numpy_process_outlinks(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_in_links, PyObject *__pyx_v_hash_vals, PyArrayObject *__pyx_v_signatures) {
   __Pyx_LocalBuf_ND __pyx_pybuffernd_signatures;
   __Pyx_Buffer __pyx_pybuffer_signatures;
   PyObject *__pyx_r = NULL;
@@ -2081,7 +2059,7 @@ static PyObject *__pyx_pf_13minhash_numpy_process_fan(CYTHON_UNUSED PyObject *__
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("process_fan", 0);
+  __Pyx_RefNannySetupContext("process_outlinks", 0);
   __pyx_pybuffer_signatures.pybuffer.buf = NULL;
   __pyx_pybuffer_signatures.refcount = 0;
   __pyx_pybuffernd_signatures.data = NULL;
@@ -2092,7 +2070,7 @@ static PyObject *__pyx_pf_13minhash_numpy_process_fan(CYTHON_UNUSED PyObject *__
   }
   __pyx_pybuffernd_signatures.diminfo[0].strides = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_signatures.diminfo[0].shape = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_signatures.diminfo[1].strides = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_signatures.diminfo[1].shape = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_13minhash_numpy_process_fan(__pyx_v_fan_stars, __pyx_v_hash_vals, __pyx_v_signatures, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __pyx_f_13minhash_numpy_process_outlinks(__pyx_v_in_links, __pyx_v_hash_vals, __pyx_v_signatures, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 11; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -2105,7 +2083,7 @@ static PyObject *__pyx_pf_13minhash_numpy_process_fan(CYTHON_UNUSED PyObject *__
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
-  __Pyx_AddTraceback("minhash_numpy.process_fan", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("minhash_numpy.process_outlinks", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   goto __pyx_L2;
   __pyx_L0:;
@@ -2116,8 +2094,8 @@ static PyObject *__pyx_pf_13minhash_numpy_process_fan(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "minhash_numpy.pyx":17
- *     signatures[fan_stars, :] = star_signatures_fans
+/* "minhash_numpy.pyx":16
+ *     signatures[in_links, :] = curr_sigs
  * 
  * cpdef np.ndarray hash_function(unsigned long fan_id, np.ndarray[np.uint_t, ndim=2] hash_a, np.ndarray[np.uint_t, ndim=2] hash_b):             # <<<<<<<<<<<<<<
  *     return np.mod(np.mod((hash_a*fan_id + hash_b), PRIME),MAX_TWITTER_ID)# Permute the row number (fan_id)
@@ -2155,16 +2133,16 @@ static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long __pyx_
   __pyx_pybuffernd_hash_b.rcbuffer = &__pyx_pybuffer_hash_b;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_a.diminfo[0].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_a.diminfo[0].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_a.diminfo[1].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_a.diminfo[1].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_b.diminfo[0].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_b.diminfo[0].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_b.diminfo[1].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_b.diminfo[1].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[1];
 
-  /* "minhash_numpy.pyx":18
+  /* "minhash_numpy.pyx":17
  * 
  * cpdef np.ndarray hash_function(unsigned long fan_id, np.ndarray[np.uint_t, ndim=2] hash_a, np.ndarray[np.uint_t, ndim=2] hash_b):
  *     return np.mod(np.mod((hash_a*fan_id + hash_b), PRIME),MAX_TWITTER_ID)# Permute the row number (fan_id)             # <<<<<<<<<<<<<<
@@ -2172,25 +2150,25 @@ static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long __pyx_
  * @cython.boundscheck(False)
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_mod); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_mod); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_mod); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_mod); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_unsigned_long(__pyx_v_fan_id); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyInt_From_unsigned_long(__pyx_v_fan_id); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = PyNumber_Multiply(((PyObject *)__pyx_v_hash_a), __pyx_t_4); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = PyNumber_Multiply(((PyObject *)__pyx_v_hash_a), __pyx_t_4); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Add(__pyx_t_6, ((PyObject *)__pyx_v_hash_b)); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = PyNumber_Add(__pyx_t_6, ((PyObject *)__pyx_v_hash_b)); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = __Pyx_PyInt_From_unsigned_int(__pyx_v_13minhash_numpy_PRIME); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = __Pyx_PyInt_From_unsigned_int(__pyx_v_13minhash_numpy_PRIME); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
   __pyx_t_7 = NULL;
   __pyx_t_8 = 0;
@@ -2204,7 +2182,7 @@ static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long __pyx_
       __pyx_t_8 = 1;
     }
   }
-  __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_9);
   if (__pyx_t_7) {
     __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -2215,11 +2193,11 @@ static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long __pyx_
   PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_t_6);
   __pyx_t_4 = 0;
   __pyx_t_6 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_13minhash_numpy_MAX_TWITTER_ID); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_13minhash_numpy_MAX_TWITTER_ID); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_9 = NULL;
   __pyx_t_8 = 0;
@@ -2233,7 +2211,7 @@ static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long __pyx_
       __pyx_t_8 = 1;
     }
   }
-  __pyx_t_6 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
   if (__pyx_t_9) {
     __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_9); __pyx_t_9 = NULL;
@@ -2244,17 +2222,17 @@ static PyArrayObject *__pyx_f_13minhash_numpy_hash_function(unsigned long __pyx_
   PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_8, __pyx_t_5);
   __pyx_t_2 = 0;
   __pyx_t_5 = 0;
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_6, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 18; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "minhash_numpy.pyx":17
- *     signatures[fan_stars, :] = star_signatures_fans
+  /* "minhash_numpy.pyx":16
+ *     signatures[in_links, :] = curr_sigs
  * 
  * cpdef np.ndarray hash_function(unsigned long fan_id, np.ndarray[np.uint_t, ndim=2] hash_a, np.ndarray[np.uint_t, ndim=2] hash_b):             # <<<<<<<<<<<<<<
  *     return np.mod(np.mod((hash_a*fan_id + hash_b), PRIME),MAX_TWITTER_ID)# Permute the row number (fan_id)
@@ -2321,16 +2299,16 @@ static PyObject *__pyx_pw_13minhash_numpy_3hash_function(PyObject *__pyx_self, P
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_hash_a)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("hash_function", 1, 3, 3, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("hash_function", 1, 3, 3, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_hash_b)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("hash_function", 1, 3, 3, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("hash_function", 1, 3, 3, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "hash_function") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "hash_function") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2339,20 +2317,20 @@ static PyObject *__pyx_pw_13minhash_numpy_3hash_function(PyObject *__pyx_self, P
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_fan_id = __Pyx_PyInt_As_unsigned_long(values[0]); if (unlikely((__pyx_v_fan_id == (unsigned long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_fan_id = __Pyx_PyInt_As_unsigned_long(values[0]); if (unlikely((__pyx_v_fan_id == (unsigned long)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
     __pyx_v_hash_a = ((PyArrayObject *)values[1]);
     __pyx_v_hash_b = ((PyArrayObject *)values[2]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("hash_function", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("hash_function", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("minhash_numpy.hash_function", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_a), __pyx_ptype_5numpy_ndarray, 1, "hash_a", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_b), __pyx_ptype_5numpy_ndarray, 1, "hash_b", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_a), __pyx_ptype_5numpy_ndarray, 1, "hash_a", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_b), __pyx_ptype_5numpy_ndarray, 1, "hash_b", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_13minhash_numpy_2hash_function(__pyx_self, __pyx_v_fan_id, __pyx_v_hash_a, __pyx_v_hash_b);
 
   /* function exit code */
@@ -2386,16 +2364,16 @@ static PyObject *__pyx_pf_13minhash_numpy_2hash_function(CYTHON_UNUSED PyObject 
   __pyx_pybuffernd_hash_b.rcbuffer = &__pyx_pybuffer_hash_b;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_a.diminfo[0].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_a.diminfo[0].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_a.diminfo[1].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_a.diminfo[1].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_b.diminfo[0].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_b.diminfo[0].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_b.diminfo[1].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_b.diminfo[1].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_13minhash_numpy_hash_function(__pyx_v_fan_id, __pyx_v_hash_a, __pyx_v_hash_b, 0)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 17; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = ((PyObject *)__pyx_f_13minhash_numpy_hash_function(__pyx_v_fan_id, __pyx_v_hash_a, __pyx_v_hash_b, 0)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 16; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -2421,7 +2399,7 @@ static PyObject *__pyx_pf_13minhash_numpy_2hash_function(CYTHON_UNUSED PyObject 
   return __pyx_r;
 }
 
-/* "minhash_numpy.pyx":23
+/* "minhash_numpy.pyx":22
  * @cython.wraparound(False)
  * @cython.cdivision(True)
  * cpdef calculate_minhashes(unsigned long[:, ::1] edges, np.ndarray[DTYPE32_t, ndim=2] signatures,             # <<<<<<<<<<<<<<
@@ -2431,12 +2409,12 @@ static PyObject *__pyx_pf_13minhash_numpy_2hash_function(CYTHON_UNUSED PyObject 
 
 static PyObject *__pyx_pw_13minhash_numpy_5calculate_minhashes(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice __pyx_v_edges, PyArrayObject *__pyx_v_signatures, PyArrayObject *__pyx_v_hash_a, PyArrayObject *__pyx_v_hash_b, int __pyx_v_num_hashes, CYTHON_UNUSED int __pyx_skip_dispatch) {
-  PyObject *__pyx_v_fan_stars = NULL;
+  PyObject *__pyx_v_vertex_outlinks = NULL;
   Py_ssize_t __pyx_v_count;
   unsigned int __pyx_v_edge_count;
-  unsigned int __pyx_v_follower_id;
-  unsigned int __pyx_v_influencer_index;
-  unsigned int __pyx_v_follower_previous_id;
+  unsigned int __pyx_v_out_id;
+  unsigned int __pyx_v_in_index;
+  unsigned int __pyx_v_out_previous_id;
   PyArrayObject *__pyx_v_hashes = 0;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_hash_a;
   __Pyx_Buffer __pyx_pybuffer_hash_a;
@@ -2492,67 +2470,67 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
   __pyx_pybuffernd_hash_b.rcbuffer = &__pyx_pybuffer_hash_b;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer, (PyObject*)__pyx_v_signatures, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer, (PyObject*)__pyx_v_signatures, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_signatures.diminfo[0].strides = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_signatures.diminfo[0].shape = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_signatures.diminfo[1].strides = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_signatures.diminfo[1].shape = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_a.diminfo[0].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_a.diminfo[0].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_a.diminfo[1].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_a.diminfo[1].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_b.diminfo[0].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_b.diminfo[0].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_b.diminfo[1].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_b.diminfo[1].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[1];
 
-  /* "minhash_numpy.pyx":26
+  /* "minhash_numpy.pyx":25
  *                           np.ndarray[DTYPE_t, ndim=2] hash_a, np.ndarray[DTYPE_t, ndim=2] hash_b,
  *                           int num_hashes):
- *     fan_stars = []             # <<<<<<<<<<<<<<
+ *     vertex_outlinks = []             # <<<<<<<<<<<<<<
  *     cdef Py_ssize_t count
  *     cdef unsigned int edge_count = edges.shape[0]
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 26; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_v_fan_stars = ((PyObject*)__pyx_t_1);
+  __pyx_v_vertex_outlinks = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "minhash_numpy.pyx":28
- *     fan_stars = []
+  /* "minhash_numpy.pyx":27
+ *     vertex_outlinks = []
  *     cdef Py_ssize_t count
  *     cdef unsigned int edge_count = edges.shape[0]             # <<<<<<<<<<<<<<
- *     cdef unsigned int follower_id, influencer_index, follower_previous_id = edges[0, 0]
+ *     cdef unsigned int out_id, in_index, out_previous_id = edges[0, 0]
  *     cdef np.ndarray[np.uint_t, ndim=2] hashes = np.zeros((1, num_hashes), dtype=np.uint)
  */
   __pyx_v_edge_count = (__pyx_v_edges.shape[0]);
 
-  /* "minhash_numpy.pyx":29
+  /* "minhash_numpy.pyx":28
  *     cdef Py_ssize_t count
  *     cdef unsigned int edge_count = edges.shape[0]
- *     cdef unsigned int follower_id, influencer_index, follower_previous_id = edges[0, 0]             # <<<<<<<<<<<<<<
+ *     cdef unsigned int out_id, in_index, out_previous_id = edges[0, 0]             # <<<<<<<<<<<<<<
  *     cdef np.ndarray[np.uint_t, ndim=2] hashes = np.zeros((1, num_hashes), dtype=np.uint)
  * 
  */
   __pyx_t_2 = 0;
   __pyx_t_3 = 0;
-  __pyx_v_follower_previous_id = (*((unsigned long *) ( /* dim=1 */ ((char *) (((unsigned long *) ( /* dim=0 */ (__pyx_v_edges.data + __pyx_t_2 * __pyx_v_edges.strides[0]) )) + __pyx_t_3)) )));
+  __pyx_v_out_previous_id = (*((unsigned long *) ( /* dim=1 */ ((char *) (((unsigned long *) ( /* dim=0 */ (__pyx_v_edges.data + __pyx_t_2 * __pyx_v_edges.strides[0]) )) + __pyx_t_3)) )));
 
-  /* "minhash_numpy.pyx":30
+  /* "minhash_numpy.pyx":29
  *     cdef unsigned int edge_count = edges.shape[0]
- *     cdef unsigned int follower_id, influencer_index, follower_previous_id = edges[0, 0]
+ *     cdef unsigned int out_id, in_index, out_previous_id = edges[0, 0]
  *     cdef np.ndarray[np.uint_t, ndim=2] hashes = np.zeros((1, num_hashes), dtype=np.uint)             # <<<<<<<<<<<<<<
  * 
  *     for count in range(edge_count):
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_num_hashes); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_num_hashes); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_int_1);
   __Pyx_GIVEREF(__pyx_int_1);
@@ -2560,32 +2538,32 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_5);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_5);
   __pyx_t_5 = 0;
-  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = PyDict_New(); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_uint); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_uint); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_7) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_7) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_7) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_7, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_t_8 = ((PyArrayObject *)__pyx_t_7);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)__pyx_t_8, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
       __pyx_v_hashes = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_hashes.rcbuffer->pybuffer.buf = NULL;
-      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 30; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      {__pyx_filename = __pyx_f[0]; __pyx_lineno = 29; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     } else {__pyx_pybuffernd_hashes.diminfo[0].strides = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hashes.diminfo[0].shape = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hashes.diminfo[1].strides = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hashes.diminfo[1].shape = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.shape[1];
     }
   }
@@ -2593,41 +2571,21 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
   __pyx_v_hashes = ((PyArrayObject *)__pyx_t_7);
   __pyx_t_7 = 0;
 
-  /* "minhash_numpy.pyx":32
+  /* "minhash_numpy.pyx":31
  *     cdef np.ndarray[np.uint_t, ndim=2] hashes = np.zeros((1, num_hashes), dtype=np.uint)
  * 
  *     for count in range(edge_count):             # <<<<<<<<<<<<<<
- *         print "edge count", edge_count
- *         # File format assumed: follower_id, influencer_id
+ *         out_id, in_index = edges[count, 0], edges[count, 1]
+ * 
  */
   __pyx_t_9 = __pyx_v_edge_count;
   for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
     __pyx_v_count = __pyx_t_10;
 
-    /* "minhash_numpy.pyx":33
+    /* "minhash_numpy.pyx":32
  * 
  *     for count in range(edge_count):
- *         print "edge count", edge_count             # <<<<<<<<<<<<<<
- *         # File format assumed: follower_id, influencer_id
- *         follower_id, influencer_index = edges[count, 0], edges[count, 1]
- */
-    __pyx_t_7 = __Pyx_PyInt_From_unsigned_int(__pyx_v_edge_count); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 33; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 33; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_INCREF(__pyx_kp_s_edge_count);
-    __Pyx_GIVEREF(__pyx_kp_s_edge_count);
-    PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_kp_s_edge_count);
-    __Pyx_GIVEREF(__pyx_t_7);
-    PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_7);
-    __pyx_t_7 = 0;
-    if (__Pyx_Print(0, __pyx_t_5, 1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 33; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-    /* "minhash_numpy.pyx":35
- *         print "edge count", edge_count
- *         # File format assumed: follower_id, influencer_id
- *         follower_id, influencer_index = edges[count, 0], edges[count, 1]             # <<<<<<<<<<<<<<
+ *         out_id, in_index = edges[count, 0], edges[count, 1]             # <<<<<<<<<<<<<<
  * 
  *         # Build up list of Stars the follower follows
  */
@@ -2637,55 +2595,55 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
     __pyx_t_14 = __pyx_v_count;
     __pyx_t_15 = 1;
     __pyx_t_16 = (*((unsigned long *) ( /* dim=1 */ ((char *) (((unsigned long *) ( /* dim=0 */ (__pyx_v_edges.data + __pyx_t_14 * __pyx_v_edges.strides[0]) )) + __pyx_t_15)) )));
-    __pyx_v_follower_id = __pyx_t_13;
-    __pyx_v_influencer_index = __pyx_t_16;
+    __pyx_v_out_id = __pyx_t_13;
+    __pyx_v_in_index = __pyx_t_16;
 
-    /* "minhash_numpy.pyx":38
+    /* "minhash_numpy.pyx":35
  * 
  *         # Build up list of Stars the follower follows
- *         if follower_id == follower_previous_id:             # <<<<<<<<<<<<<<
- *             fan_stars.append(influencer_index)
+ *         if out_id == out_previous_id:             # <<<<<<<<<<<<<<
+ *             vertex_outlinks.append(in_index)
  *         # Process follower - this also happens on first line
  */
-    __pyx_t_17 = ((__pyx_v_follower_id == __pyx_v_follower_previous_id) != 0);
+    __pyx_t_17 = ((__pyx_v_out_id == __pyx_v_out_previous_id) != 0);
     if (__pyx_t_17) {
 
-      /* "minhash_numpy.pyx":39
+      /* "minhash_numpy.pyx":36
  *         # Build up list of Stars the follower follows
- *         if follower_id == follower_previous_id:
- *             fan_stars.append(influencer_index)             # <<<<<<<<<<<<<<
+ *         if out_id == out_previous_id:
+ *             vertex_outlinks.append(in_index)             # <<<<<<<<<<<<<<
  *         # Process follower - this also happens on first line
  *         else:
  */
-      __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_influencer_index); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_18 = __Pyx_PyList_Append(__pyx_v_fan_stars, __pyx_t_5); if (unlikely(__pyx_t_18 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_7 = __Pyx_PyInt_From_unsigned_int(__pyx_v_in_index); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 36; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_7);
+      __pyx_t_18 = __Pyx_PyList_Append(__pyx_v_vertex_outlinks, __pyx_t_7); if (unlikely(__pyx_t_18 == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 36; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "minhash_numpy.pyx":38
+      /* "minhash_numpy.pyx":35
  * 
  *         # Build up list of Stars the follower follows
- *         if follower_id == follower_previous_id:             # <<<<<<<<<<<<<<
- *             fan_stars.append(influencer_index)
+ *         if out_id == out_previous_id:             # <<<<<<<<<<<<<<
+ *             vertex_outlinks.append(in_index)
  *         # Process follower - this also happens on first line
  */
       goto __pyx_L5;
     }
 
-    /* "minhash_numpy.pyx":42
+    /* "minhash_numpy.pyx":39
  *         # Process follower - this also happens on first line
  *         else:
- *             hashes = hash_function(follower_previous_id, hash_a, hash_b)             # <<<<<<<<<<<<<<
+ *             hashes = hash_function(out_previous_id, hash_a, hash_b)             # <<<<<<<<<<<<<<
  * 
  *             # Obtain stars the follower follows
  */
     /*else*/ {
-      __pyx_t_5 = ((PyObject *)__pyx_f_13minhash_numpy_hash_function(__pyx_v_follower_previous_id, ((PyArrayObject *)__pyx_v_hash_a), ((PyArrayObject *)__pyx_v_hash_b), 0)); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_7 = ((PyObject *)__pyx_f_13minhash_numpy_hash_function(__pyx_v_out_previous_id, ((PyArrayObject *)__pyx_v_hash_a), ((PyArrayObject *)__pyx_v_hash_b), 0)); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_7);
       {
         __Pyx_BufFmt_StackElem __pyx_stack[1];
         __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer);
-        __pyx_t_19 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_5), &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack);
+        __pyx_t_19 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack);
         if (unlikely(__pyx_t_19 < 0)) {
           PyErr_Fetch(&__pyx_t_20, &__pyx_t_21, &__pyx_t_22);
           if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)__pyx_v_hashes, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
@@ -2696,64 +2654,64 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
           }
         }
         __pyx_pybuffernd_hashes.diminfo[0].strides = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hashes.diminfo[0].shape = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hashes.diminfo[1].strides = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hashes.diminfo[1].shape = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.shape[1];
-        if (unlikely(__pyx_t_19 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        if (unlikely(__pyx_t_19 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 39; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
-      __Pyx_DECREF_SET(__pyx_v_hashes, ((PyArrayObject *)__pyx_t_5));
-      __pyx_t_5 = 0;
+      __Pyx_DECREF_SET(__pyx_v_hashes, ((PyArrayObject *)__pyx_t_7));
+      __pyx_t_7 = 0;
+
+      /* "minhash_numpy.pyx":42
+ * 
+ *             # Obtain stars the follower follows
+ *             process_outlinks(vertex_outlinks, hashes, signatures)             # <<<<<<<<<<<<<<
+ * 
+ *             out_previous_id = out_id
+ */
+      __pyx_t_7 = __pyx_f_13minhash_numpy_process_outlinks(__pyx_v_vertex_outlinks, ((PyObject *)__pyx_v_hashes), ((PyArrayObject *)__pyx_v_signatures), 0); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 42; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_7);
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+
+      /* "minhash_numpy.pyx":44
+ *             process_outlinks(vertex_outlinks, hashes, signatures)
+ * 
+ *             out_previous_id = out_id             # <<<<<<<<<<<<<<
+ *             vertex_outlinks = [in_index]
+ *     # Process last fan
+ */
+      __pyx_v_out_previous_id = __pyx_v_out_id;
 
       /* "minhash_numpy.pyx":45
  * 
- *             # Obtain stars the follower follows
- *             process_fan(fan_stars, hashes, signatures)             # <<<<<<<<<<<<<<
- * 
- *             follower_previous_id = follower_id
- */
-      __pyx_t_5 = __pyx_f_13minhash_numpy_process_fan(__pyx_v_fan_stars, ((PyObject *)__pyx_v_hashes), ((PyArrayObject *)__pyx_v_signatures), 0); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_5);
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-      /* "minhash_numpy.pyx":47
- *             process_fan(fan_stars, hashes, signatures)
- * 
- *             follower_previous_id = follower_id             # <<<<<<<<<<<<<<
- *             fan_stars = [influencer_index]
+ *             out_previous_id = out_id
+ *             vertex_outlinks = [in_index]             # <<<<<<<<<<<<<<
  *     # Process last fan
+ *     hashes = hash_function(out_previous_id, hash_a, hash_b)
  */
-      __pyx_v_follower_previous_id = __pyx_v_follower_id;
-
-      /* "minhash_numpy.pyx":48
- * 
- *             follower_previous_id = follower_id
- *             fan_stars = [influencer_index]             # <<<<<<<<<<<<<<
- *     # Process last fan
- *     hashes = hash_function(follower_previous_id, hash_a, hash_b)
- */
-      __pyx_t_5 = __Pyx_PyInt_From_unsigned_int(__pyx_v_influencer_index); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-      __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 48; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = __Pyx_PyInt_From_unsigned_int(__pyx_v_in_index); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
-      __Pyx_GIVEREF(__pyx_t_5);
-      PyList_SET_ITEM(__pyx_t_7, 0, __pyx_t_5);
-      __pyx_t_5 = 0;
-      __Pyx_DECREF_SET(__pyx_v_fan_stars, ((PyObject*)__pyx_t_7));
+      __pyx_t_5 = PyList_New(1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 45; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_GIVEREF(__pyx_t_7);
+      PyList_SET_ITEM(__pyx_t_5, 0, __pyx_t_7);
       __pyx_t_7 = 0;
+      __Pyx_DECREF_SET(__pyx_v_vertex_outlinks, ((PyObject*)__pyx_t_5));
+      __pyx_t_5 = 0;
     }
     __pyx_L5:;
   }
 
-  /* "minhash_numpy.pyx":50
- *             fan_stars = [influencer_index]
+  /* "minhash_numpy.pyx":47
+ *             vertex_outlinks = [in_index]
  *     # Process last fan
- *     hashes = hash_function(follower_previous_id, hash_a, hash_b)             # <<<<<<<<<<<<<<
+ *     hashes = hash_function(out_previous_id, hash_a, hash_b)             # <<<<<<<<<<<<<<
  * 
  *     # Obtain stars the follower follows
  */
-  __pyx_t_7 = ((PyObject *)__pyx_f_13minhash_numpy_hash_function(__pyx_v_follower_previous_id, ((PyArrayObject *)__pyx_v_hash_a), ((PyArrayObject *)__pyx_v_hash_b), 0)); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_5 = ((PyObject *)__pyx_f_13minhash_numpy_hash_function(__pyx_v_out_previous_id, ((PyArrayObject *)__pyx_v_hash_a), ((PyArrayObject *)__pyx_v_hash_b), 0)); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer);
-    __pyx_t_19 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_7), &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack);
+    __pyx_t_19 = __Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)((PyArrayObject *)__pyx_t_5), &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack);
     if (unlikely(__pyx_t_19 < 0)) {
       PyErr_Fetch(&__pyx_t_22, &__pyx_t_21, &__pyx_t_20);
       if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer, (PyObject*)__pyx_v_hashes, &__Pyx_TypeInfo_nn___pyx_t_5numpy_uint_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {
@@ -2764,21 +2722,21 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
       }
     }
     __pyx_pybuffernd_hashes.diminfo[0].strides = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hashes.diminfo[0].shape = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hashes.diminfo[1].strides = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hashes.diminfo[1].shape = __pyx_pybuffernd_hashes.rcbuffer->pybuffer.shape[1];
-    if (unlikely(__pyx_t_19 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__pyx_t_19 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 47; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
-  __Pyx_DECREF_SET(__pyx_v_hashes, ((PyArrayObject *)__pyx_t_7));
-  __pyx_t_7 = 0;
+  __Pyx_DECREF_SET(__pyx_v_hashes, ((PyArrayObject *)__pyx_t_5));
+  __pyx_t_5 = 0;
 
-  /* "minhash_numpy.pyx":53
+  /* "minhash_numpy.pyx":50
  * 
  *     # Obtain stars the follower follows
- *     process_fan(fan_stars, hashes, signatures)             # <<<<<<<<<<<<<<
+ *     process_outlinks(vertex_outlinks, hashes, signatures)             # <<<<<<<<<<<<<<
  */
-  __pyx_t_7 = __pyx_f_13minhash_numpy_process_fan(__pyx_v_fan_stars, ((PyObject *)__pyx_v_hashes), ((PyArrayObject *)__pyx_v_signatures), 0); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 53; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_5 = __pyx_f_13minhash_numpy_process_outlinks(__pyx_v_vertex_outlinks, ((PyObject *)__pyx_v_hashes), ((PyArrayObject *)__pyx_v_signatures), 0); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 50; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "minhash_numpy.pyx":23
+  /* "minhash_numpy.pyx":22
  * @cython.wraparound(False)
  * @cython.cdivision(True)
  * cpdef calculate_minhashes(unsigned long[:, ::1] edges, np.ndarray[DTYPE32_t, ndim=2] signatures,             # <<<<<<<<<<<<<<
@@ -2811,7 +2769,7 @@ static PyObject *__pyx_f_13minhash_numpy_calculate_minhashes(__Pyx_memviewslice 
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_hashes.rcbuffer->pybuffer);
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer);
   __pyx_L2:;
-  __Pyx_XDECREF(__pyx_v_fan_stars);
+  __Pyx_XDECREF(__pyx_v_vertex_outlinks);
   __Pyx_XDECREF((PyObject *)__pyx_v_hashes);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -2855,26 +2813,26 @@ static PyObject *__pyx_pw_13minhash_numpy_5calculate_minhashes(PyObject *__pyx_s
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_signatures)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_hash_a)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_hash_b)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  4:
         if (likely((values[4] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_num_hashes)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 4); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, 4); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_minhashes") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_minhashes") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -2885,23 +2843,23 @@ static PyObject *__pyx_pw_13minhash_numpy_5calculate_minhashes(PyObject *__pyx_s
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
-    __pyx_v_edges = __Pyx_PyObject_to_MemoryviewSlice_d_dc_unsigned_long(values[0]); if (unlikely(!__pyx_v_edges.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_edges = __Pyx_PyObject_to_MemoryviewSlice_d_dc_unsigned_long(values[0]); if (unlikely(!__pyx_v_edges.memview)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
     __pyx_v_signatures = ((PyArrayObject *)values[1]);
     __pyx_v_hash_a = ((PyArrayObject *)values[2]);
     __pyx_v_hash_b = ((PyArrayObject *)values[3]);
-    __pyx_v_num_hashes = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_num_hashes == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 25; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_num_hashes = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_num_hashes == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("calculate_minhashes", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("minhash_numpy.calculate_minhashes", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_signatures), __pyx_ptype_5numpy_ndarray, 1, "signatures", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_a), __pyx_ptype_5numpy_ndarray, 1, "hash_a", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_b), __pyx_ptype_5numpy_ndarray, 1, "hash_b", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 24; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_signatures), __pyx_ptype_5numpy_ndarray, 1, "signatures", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_a), __pyx_ptype_5numpy_ndarray, 1, "hash_a", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_hash_b), __pyx_ptype_5numpy_ndarray, 1, "hash_b", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_13minhash_numpy_4calculate_minhashes(__pyx_self, __pyx_v_edges, __pyx_v_signatures, __pyx_v_hash_a, __pyx_v_hash_b, __pyx_v_num_hashes);
 
   /* function exit code */
@@ -2941,22 +2899,22 @@ static PyObject *__pyx_pf_13minhash_numpy_4calculate_minhashes(CYTHON_UNUSED PyO
   __pyx_pybuffernd_hash_b.rcbuffer = &__pyx_pybuffer_hash_b;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer, (PyObject*)__pyx_v_signatures, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_signatures.rcbuffer->pybuffer, (PyObject*)__pyx_v_signatures, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE32_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_signatures.diminfo[0].strides = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_signatures.diminfo[0].shape = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_signatures.diminfo[1].strides = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_signatures.diminfo[1].shape = __pyx_pybuffernd_signatures.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_a.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_a, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_a.diminfo[0].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_a.diminfo[0].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_a.diminfo[1].strides = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_a.diminfo[1].shape = __pyx_pybuffernd_hash_a.rcbuffer->pybuffer.shape[1];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_hash_b.rcbuffer->pybuffer, (PyObject*)__pyx_v_hash_b, &__Pyx_TypeInfo_nn___pyx_t_13minhash_numpy_DTYPE_t, PyBUF_FORMAT| PyBUF_STRIDES, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_hash_b.diminfo[0].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_hash_b.diminfo[0].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_hash_b.diminfo[1].strides = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_hash_b.diminfo[1].shape = __pyx_pybuffernd_hash_b.rcbuffer->pybuffer.shape[1];
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_edges.memview)) { __Pyx_RaiseUnboundLocalError("edges"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
-  __pyx_t_1 = __pyx_f_13minhash_numpy_calculate_minhashes(__pyx_v_edges, __pyx_v_signatures, __pyx_v_hash_a, __pyx_v_hash_b, __pyx_v_num_hashes, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 23; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__pyx_v_edges.memview)) { __Pyx_RaiseUnboundLocalError("edges"); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;} }
+  __pyx_t_1 = __pyx_f_13minhash_numpy_calculate_minhashes(__pyx_v_edges, __pyx_v_signatures, __pyx_v_hash_a, __pyx_v_hash_b, __pyx_v_num_hashes, 0); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 22; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -17309,7 +17267,7 @@ static PyTypeObject __pyx_type___pyx_memoryviewslice = {
 };
 
 static PyMethodDef __pyx_methods[] = {
-  {"process_fan", (PyCFunction)__pyx_pw_13minhash_numpy_1process_fan, METH_VARARGS|METH_KEYWORDS, 0},
+  {"process_outlinks", (PyCFunction)__pyx_pw_13minhash_numpy_1process_outlinks, METH_VARARGS|METH_KEYWORDS, 0},
   {"hash_function", (PyCFunction)__pyx_pw_13minhash_numpy_3hash_function, METH_VARARGS|METH_KEYWORDS, 0},
   {"calculate_minhashes", (PyCFunction)__pyx_pw_13minhash_numpy_5calculate_minhashes, METH_VARARGS|METH_KEYWORDS, 0},
   {0, 0, 0, 0}
@@ -17365,15 +17323,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
-  {&__pyx_kp_s_edge_count, __pyx_k_edge_count, sizeof(__pyx_k_edge_count), 0, 0, 1, 0},
   {&__pyx_n_s_edges, __pyx_k_edges, sizeof(__pyx_k_edges), 0, 0, 1, 1},
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
-  {&__pyx_n_s_end, __pyx_k_end, sizeof(__pyx_k_end), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
   {&__pyx_n_s_fan_id, __pyx_k_fan_id, sizeof(__pyx_k_fan_id), 0, 0, 1, 1},
-  {&__pyx_n_s_fan_stars, __pyx_k_fan_stars, sizeof(__pyx_k_fan_stars), 0, 0, 1, 1},
-  {&__pyx_n_s_file, __pyx_k_file, sizeof(__pyx_k_file), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
@@ -17384,6 +17338,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_hash_vals, __pyx_k_hash_vals, sizeof(__pyx_k_hash_vals), 0, 0, 1, 1},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
+  {&__pyx_n_s_in_links, __pyx_k_in_links, sizeof(__pyx_k_in_links), 0, 0, 1, 1},
   {&__pyx_n_s_itemsize, __pyx_k_itemsize, sizeof(__pyx_k_itemsize), 0, 0, 1, 1},
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
@@ -17401,7 +17356,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
-  {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_getbuffer, __pyx_k_pyx_getbuffer, sizeof(__pyx_k_pyx_getbuffer), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
@@ -17425,7 +17379,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 32; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 31; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 218; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 799; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) {__pyx_filename = __pyx_f[2]; __pyx_lineno = 144; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -17445,23 +17399,23 @@ static int __Pyx_InitCachedConstants(void) {
 
   /* "minhash_numpy.pyx":12
  * 
- * cpdef process_fan(fan_stars, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
- *     star_signatures_fans = signatures[fan_stars, :]             # <<<<<<<<<<<<<<
- *     star_signatures_fans = np.minimum(star_signatures_fans,
- *                                       hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
+ * cpdef process_outlinks(in_links, hash_vals, np.ndarray[DTYPE32_t, ndim=2] signatures):
+ *     curr_sigs = signatures[in_links, :]             # <<<<<<<<<<<<<<
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
+ *     signatures[in_links, :] = curr_sigs
  */
   __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 12; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice_);
   __Pyx_GIVEREF(__pyx_slice_);
 
-  /* "minhash_numpy.pyx":15
- *     star_signatures_fans = np.minimum(star_signatures_fans,
- *                                       hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
- *     signatures[fan_stars, :] = star_signatures_fans             # <<<<<<<<<<<<<<
+  /* "minhash_numpy.pyx":14
+ *     curr_sigs = signatures[in_links, :]
+ *     curr_sigs = np.minimum(curr_sigs, hash_vals)  # Automaticaly replicates (broadcasts) the hash_val array column-wise
+ *     signatures[in_links, :] = curr_sigs             # <<<<<<<<<<<<<<
  * 
  * cpdef np.ndarray hash_function(unsigned long fan_id, np.ndarray[np.uint_t, ndim=2] hash_a, np.ndarray[np.uint_t, ndim=2] hash_b):
  */
-  __pyx_slice__2 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_slice__2 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 14; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_slice__2);
   __Pyx_GIVEREF(__pyx_slice__2);
 
@@ -17886,19 +17840,20 @@ PyMODINIT_FUNC PyInit_minhash_numpy(void)
   if (__Pyx_patch_abc() < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   #endif
 
-  /* "minhash_numpy.pyx":2
- * cimport numpy as np
- * import numpy as np             # <<<<<<<<<<<<<<
+  /* "minhash_numpy.pyx":3
+ * cimport numpy as np  # import for the cython build
  * cimport cython
+ * import numpy as np  # import for the library call             # <<<<<<<<<<<<<<
  * 
+ * cdef unsigned int PRIME = 3000000019
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, -1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 2; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, -1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 3; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 2; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 3; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "minhash_numpy.pyx":5
- * cimport cython
+ * import numpy as np  # import for the library call
  * 
  * cdef unsigned int PRIME = 3000000019             # <<<<<<<<<<<<<<
  * cdef unsigned int MAX_TWITTER_ID = 3000000000
@@ -17916,9 +17871,9 @@ PyMODINIT_FUNC PyInit_minhash_numpy(void)
   __pyx_v_13minhash_numpy_MAX_TWITTER_ID = 0xB2D05E00;
 
   /* "minhash_numpy.pyx":1
- * cimport numpy as np             # <<<<<<<<<<<<<<
- * import numpy as np
+ * cimport numpy as np  # import for the cython build             # <<<<<<<<<<<<<<
  * cimport cython
+ * import numpy as np  # import for the library call
  */
   __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 1; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
@@ -20742,111 +20697,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
                                      little, !is_unsigned);
     }
 }
-
-#if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
-static PyObject *__Pyx_GetStdout(void) {
-    PyObject *f = PySys_GetObject((char *)"stdout");
-    if (!f) {
-        PyErr_SetString(PyExc_RuntimeError, "lost sys.stdout");
-    }
-    return f;
-}
-static int __Pyx_Print(PyObject* f, PyObject *arg_tuple, int newline) {
-    int i;
-    if (!f) {
-        if (!(f = __Pyx_GetStdout()))
-            return -1;
-    }
-    Py_INCREF(f);
-    for (i=0; i < PyTuple_GET_SIZE(arg_tuple); i++) {
-        PyObject* v;
-        if (PyFile_SoftSpace(f, 1)) {
-            if (PyFile_WriteString(" ", f) < 0)
-                goto error;
-        }
-        v = PyTuple_GET_ITEM(arg_tuple, i);
-        if (PyFile_WriteObject(v, f, Py_PRINT_RAW) < 0)
-            goto error;
-        if (PyString_Check(v)) {
-            char *s = PyString_AsString(v);
-            Py_ssize_t len = PyString_Size(v);
-            if (len > 0) {
-                switch (s[len-1]) {
-                    case ' ': break;
-                    case '\f': case '\r': case '\n': case '\t': case '\v':
-                        PyFile_SoftSpace(f, 0);
-                        break;
-                    default:  break;
-                }
-            }
-        }
-    }
-    if (newline) {
-        if (PyFile_WriteString("\n", f) < 0)
-            goto error;
-        PyFile_SoftSpace(f, 0);
-    }
-    Py_DECREF(f);
-    return 0;
-error:
-    Py_DECREF(f);
-    return -1;
-}
-#else
-static int __Pyx_Print(PyObject* stream, PyObject *arg_tuple, int newline) {
-    PyObject* kwargs = 0;
-    PyObject* result = 0;
-    PyObject* end_string;
-    if (unlikely(!__pyx_print)) {
-        __pyx_print = PyObject_GetAttr(__pyx_b, __pyx_n_s_print);
-        if (!__pyx_print)
-            return -1;
-    }
-    if (stream) {
-        kwargs = PyDict_New();
-        if (unlikely(!kwargs))
-            return -1;
-        if (unlikely(PyDict_SetItem(kwargs, __pyx_n_s_file, stream) < 0))
-            goto bad;
-        if (!newline) {
-            end_string = PyUnicode_FromStringAndSize(" ", 1);
-            if (unlikely(!end_string))
-                goto bad;
-            if (PyDict_SetItem(kwargs, __pyx_n_s_end, end_string) < 0) {
-                Py_DECREF(end_string);
-                goto bad;
-            }
-            Py_DECREF(end_string);
-        }
-    } else if (!newline) {
-        if (unlikely(!__pyx_print_kwargs)) {
-            __pyx_print_kwargs = PyDict_New();
-            if (unlikely(!__pyx_print_kwargs))
-                return -1;
-            end_string = PyUnicode_FromStringAndSize(" ", 1);
-            if (unlikely(!end_string))
-                return -1;
-            if (PyDict_SetItem(__pyx_print_kwargs, __pyx_n_s_end, end_string) < 0) {
-                Py_DECREF(end_string);
-                return -1;
-            }
-            Py_DECREF(end_string);
-        }
-        kwargs = __pyx_print_kwargs;
-    }
-    result = PyObject_Call(__pyx_print, arg_tuple, kwargs);
-    if (unlikely(kwargs) && (kwargs != __pyx_print_kwargs))
-        Py_DECREF(kwargs);
-    if (!result)
-        return -1;
-    Py_DECREF(result);
-    return 0;
-bad:
-    if (kwargs != __pyx_print_kwargs)
-        Py_XDECREF(kwargs);
-    return -1;
-}
-#endif
 
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus

@@ -1,5 +1,6 @@
-import numpy as np
+cimport numpy as np  # import for the cython build
 cimport cython
+import numpy as np  # import for the library call
 
 cdef unsigned int PRIME = 3000000019
 cdef unsigned int MAX_TWITTER_ID = 3000000000
@@ -24,16 +25,14 @@ cpdef calculate_minhashes(unsigned long[:, ::1] edges, np.ndarray[DTYPE32_t, ndi
     vertex_outlinks = []
     cdef Py_ssize_t count
     cdef unsigned int edge_count = edges.shape[0]
-    cdef unsigned int follower_id, in_index, out_previous_id = edges[0, 0]
+    cdef unsigned int out_id, in_index, out_previous_id = edges[0, 0]
     cdef np.ndarray[np.uint_t, ndim=2] hashes = np.zeros((1, num_hashes), dtype=np.uint)
 
     for count in range(edge_count):
-        print "edge count", edge_count
-        # File format assumed: follower_id, influencer_id
-        follower_id, in_index = edges[count, 0], edges[count, 1]
+        out_id, in_index = edges[count, 0], edges[count, 1]
 
         # Build up list of Stars the follower follows
-        if follower_id == out_previous_id:
+        if out_id == out_previous_id:
             vertex_outlinks.append(in_index)
         # Process follower - this also happens on first line
         else:
@@ -42,7 +41,7 @@ cpdef calculate_minhashes(unsigned long[:, ::1] edges, np.ndarray[DTYPE32_t, ndi
             # Obtain stars the follower follows
             process_outlinks(vertex_outlinks, hashes, signatures)
 
-            out_previous_id = follower_id
+            out_previous_id = out_id
             vertex_outlinks = [in_index]
     # Process last fan
     hashes = hash_function(out_previous_id, hash_a, hash_b)

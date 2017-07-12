@@ -558,6 +558,36 @@ class CommunityDetector:
         return seeds
 
 
+def run_email_experiments(sig_path, outfolder, lsh_path):
+    start_time = time()
+    n_seeds = 5  # The number of seeds to start with. Experimental value
+    result_interval = 5  # the intervals in number of accounts to snap the recall at
+    random_seeds = [451235, 35631241, 2315, 346213456, 134]  # experimental choices of seeds
+
+    inpath = '../../local_resources/email_data/signatures.txt'
+    # outfolder = '../../results'
+    # lsh_path = '../../results/hash_table.pkl'
+    outfolder = '../../results/email'
+    lsh_path = '../../local_resources/email_data/hash_table.pkl'
+
+    raw_data = pd.read_csv(inpath, index_col=0)
+    raw_data.index.name = 'community'
+    data = raw_data.reset_index()
+    community_detector = CommunityDetector(data, outfolder, lsh_path=lsh_path)
+    with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'wb') as runtime_file:
+        writer = csv.writer(runtime_file)
+        writer.writerow(['community', 'method', 'runtime'])
+    with open('../../results/runtimes_' + str(n_seeds) + '.csv', 'ab') as runtime_file:
+        grouped = data.groupby('community')
+        for group in grouped:
+            if group[1].shape[0] > n_seeds + result_interval:
+                community_detector.run_experimentation(n_seeds, group, random_seeds, result_interval, runtime_file)
+
+    print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
+    print 'plotting recall curves'
+    plot_recall(raw_data, outfolder, outfolder, 25)
+
+
 if __name__ == '__main__':
     start_time = time()
     n_seeds = 5  # The number of seeds to start with. Experimental value
