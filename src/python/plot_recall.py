@@ -134,7 +134,7 @@ def get_communities_above_threshold(data, threshold_size):
     return count_list
 
 
-def plot_recall(data, community_folder, out_folder, threshold_size=0):
+def plot_recall(data, community_folder, out_folder, nrows, ncols, threshold_size=0):
     """
     generate the experimental recall curves for pagerank, minrank and initial_avg
     :param data: A pandas dataframe indexed by community label

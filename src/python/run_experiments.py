@@ -579,7 +579,7 @@ def run_email_experiments(sig_path, outfolder, lsh_path):
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
     print 'plotting recall curves'
-    plot_recall(raw_data, outfolder, outfolder, threshold_size=25)
+    plot_recall(raw_data, outfolder, outfolder, nrows=5, ncols=3, threshold_size=25)
 
 
 def run_twitter_experiments(sig_path, outfolder, lsh_path):
@@ -603,7 +603,7 @@ def run_twitter_experiments(sig_path, outfolder, lsh_path):
 
     print 'All experiments for ', len(random_seeds), ' random restarts in ', time() - start_time
     print 'plotting recall curves'
-    plot_recall(raw_data, outfolder, outfolder)
+    plot_recall(raw_data, outfolder, outfolder, nrows=4, ncols=4)
 
 
 if __name__ == '__main__':
