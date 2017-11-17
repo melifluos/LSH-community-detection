@@ -15,9 +15,9 @@ pip install cython
 
 ## Replicating the experiments with Twitter data
 
-Download the minhash data available at:
+Download the minhash data available from DANS EASY:
 
-https://www.dropbox.com/s/sce6qcmbkpjpeuh/hashes.csv?dl=0
+https://doi.org/10.17026/dans-x6a-mgvm
 
 Assuming you are in the directory of the source code and have cloned this repository.
 
