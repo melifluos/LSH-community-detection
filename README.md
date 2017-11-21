@@ -15,9 +15,9 @@ pip install cython
 
 ## Replicating the experiments with Twitter data
 
-Download the minhash data available at:
+Download the minhash data available from DANS EASY:
 
-https://www.dropbox.com/s/sce6qcmbkpjpeuh/hashes.csv?dl=0
+https://doi.org/10.17026/dans-x6a-mgvm
 
 Assuming you are in the directory of the source code and have cloned this repository.
 
@@ -49,6 +49,6 @@ The LSH table and the minhashes are written to the resources folder. The plots a
 
 ###  Citation
 
-If you make use of this code please cite
+If you make use of this code please cite:
 
 Chamberlain BP, Levy-Kramer J, Humby C, Deisenroth MP. Real-Time Community Detection in Large Social Networks on a Laptop. arXiv preprint arXiv:1601.03958. 2016 Jan 15.
