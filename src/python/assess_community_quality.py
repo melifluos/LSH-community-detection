@@ -280,7 +280,7 @@ if __name__ == '__main__':
                                      epilog='features are based just on the communities and not all of Twitter')
     parser.add_argument(
         'inpath', type=str,
-        nargs='+', default='local_resources/plos_one_data.csv', help='the location of the minhash file')
+        nargs='+', default='local_resources/twitter_data.csv', help='the location of the minhash file')
     parser.add_argument(
         'outpath', type=str,
         nargs='+', default='results/community_analysis.csv', help='the location to write data to')

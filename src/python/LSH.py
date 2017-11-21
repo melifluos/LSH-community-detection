@@ -214,7 +214,7 @@ if __name__ == '__main__':
         nargs='+', default='local_resources/twitter_data.csv', help='the location of the minhash file')
     parser.add_argument(
         'outpath', type=str,
-        nargs='+', default='results/community_analysis.csv', help='the location to write data to')
+        nargs='+', default='local_resources/twitter_hash_table.pkl', help='the location to write data to')
 
     parser.add_argument(
         '--n_bands', type=int,
