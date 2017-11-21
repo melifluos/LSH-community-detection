@@ -194,7 +194,7 @@ def build_LSH_table(signatures, outpath, n_bands=500):
     start = time.time()
     hash_table = []
     n_accounts, n_hashes = signatures.shape
-    band_size = n_hashes / n_bands
+    band_size = int(n_hashes / n_bands)
     for band_num, col_idx in enumerate(xrange(0, n_hashes, int(band_size))):
         # need to efficiently find any duplicate hashes. These are the only ones we care about
         hashes = hash_single_band(signatures[:, col_idx:(col_idx + band_size)])
