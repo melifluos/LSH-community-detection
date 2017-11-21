@@ -31,7 +31,7 @@ python assess_community_quality.py minhash_data_path outpath
 
 To run experimentation
 
-python run_experimentation.py minhash_data_path LSH_outputpath outpath
+python run_experiments.py minhash_data_path LSH_outputpath outpath
 
 
 ## Replicating the end-to-end process with the public email data set from SNAP https://snap.stanford.edu/data/email-EuAll.html
